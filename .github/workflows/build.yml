@@ -16,16 +16,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     
-    - name: Download Gradle Wrapper
+    - name: Build with Gradle
       run: |
-        ./gradlew --version || (curl -L https://services.gradle.org/distributions/gradle-8.0-bin.zip -o gradle.zip && unzip gradle.zip && ./gradle-8.0/bin/gradle --version)
-    
-    - name: Build APK
-      run: |
-        chmod +x gradlew
-        ./gradlew assembleRelease
+        gradle -v
+        gradle assembleRelease -p app
     
     - name: Upload APK
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: app-release.apk
