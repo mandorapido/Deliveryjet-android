@@ -1,0 +1,2 @@
+-keep class com.deliveryjet.** { *; }
+-keepclassmembers class com.deliveryjet.** { *; }

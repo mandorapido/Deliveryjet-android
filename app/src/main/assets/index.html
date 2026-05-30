@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>DeliveryJet</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d0f14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DeliveryJet">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
+function openWhatsApp(){
+  const phone = document.querySelector('[data-phone]')?.dataset.phone;
+  if(!phone) { alert('אין מספר טלפון'); return; }
+  const msg = encodeURIComponent('שלום, אני בדרך אליך עם המשלוח 🚀');
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f14;color:#e8e2d4;font-family:'Courier New',monospace;direction:rtl;min-height:100vh;padding:20px 14px 80px}
+.bg{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,160,0,.04)1px,transparent 1px),linear-gradient(90deg,rgba(255,160,0,.04)1px,transparent 1px);background-size:40px 40px}
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto}
+h1{color:#ffa000;font-size:20px;letter-spacing:2px;text-transform:uppercase}
+.sub{color:#555;font-size:11px;letter-spacing:1px;margin-bottom:20px}
+input[type=password]{width:100%;background:#111418;border:1px solid #333;border-radius:6px;color:#e8e2d4;font-family:inherit;font-size:13px;padding:10px 12px;outline:none}
+.row{display:flex;gap:8px;align-items:center}
+.divider{border:none;border-top:1px solid #1e2228;margin:16px 0}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;padding:11px 0;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;border:1px solid #333;background:transparent;color:#ffa000;transition:all .2s}
+.tab.on{background:#ffa000;color:#0d0f14;border-color:#ffa000}
+.upload-zone{border:2px dashed #ffa00066;border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;background:rgba(255,160,0,.03)}
+.uploaded{background:rgba(39,174,96,.08);border:1px solid #27ae6044;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.img-btns{display:flex;gap:10px;margin-bottom:8px}
+.img-btn{flex:1;padding:18px 0;border:1px dashed #444;border-radius:8px;background:rgba(255,160,0,.02);cursor:pointer;font-family:inherit;color:#e8e2d4;font-size:12px;line-height:2;text-align:center}
+.preview-wrap{position:relative}
+.preview-wrap img{width:100%;border-radius:8px;max-height:220px;object-fit:cover;border:1px solid #333}
+.change-btn{position:absolute;top:8px;left:8px;background:rgba(13,15,20,.88);border:1px solid #555;color:#ccc;padding:5px 12px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:12px}
+.run-btn{width:100%;margin-top:12px;padding:14px 0;background:#ffa000;color:#0d0f14;border:none;border-radius:6px;font-family:inherit;font-weight:700;font-size:14px;letter-spacing:2px;cursor:pointer;text-transform:uppercase}
+.run-btn:disabled{background:#3a2a00;color:#ffa000;cursor:not-allowed}
+.status{margin-top:12px;padding:12px 14px;background:rgba(255,160,0,.05);border:1px solid #ffa00044;border-radius:6px;font-size:13px;color:#ffa000;line-height:1.7}
+.status.err{background:rgba(255,60,60,.07);border-color:#c0392b55;color:#e74c3c}
+.res-head{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.reset-btn{background:transparent;border:1px solid #444;color:#888;padding:4px 12px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:11px;align-self:flex-end}
+.list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.card{border-radius:8px;padding:10px}
+.card.delivery{background:rgba(255,160,0,.03);border:1px solid #ffa00028}
+.card.pickup{background:rgba(39,174,96,.04);border:1px solid #27ae6033}
+.card.failed{background:rgba(255,60,60,.04);border-color:#c0392b33}
+.card.approx{background:rgba(155,89,182,.04);border-color:#9b59b633}
+.card.changed{background:rgba(52,152,219,.06);border:1px solid #3498db66}
+.card.streetonly{background:rgba(130,201,30,.05);border:1px solid #82c91e55}
+.card-top{display:flex;align-items:flex-start;gap:8px}
+.num{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.num.d{background:#ffa000;color:#0d0f14}
+.num.p{background:#27ae60;color:#0d0f14}
+.num.f{background:#c0392b;color:#fff}
+.card-info{flex:1;min-width:0}
+.card-addr{font-size:13px;font-weight:700;line-height:1.4;margin-bottom:3px}
+.card-meta{font-size:11px;color:#888;line-height:1.8}
+.acts{display:flex;gap:4px;flex-shrink:0}
+.act{background:transparent;width:26px;height:26px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:12px;display:flex;align-items:center;justify-content:center}
+.export-row{display:flex;gap:8px;margin-top:4px}
+.gpx-btn{flex:2;padding:13px 0;background:#ffa000;color:#0d0f14;border:none;border-radius:6px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase}
+.gpx-btn:disabled{background:#333;color:#555;cursor:not-allowed}
+.vcf-btn{flex:1;padding:13px 0;background:transparent;color:#27ae60;border:1px solid #27ae60;border-radius:6px;font-family:inherit;font-weight:700;font-size:12px;cursor:pointer}
+.vcf-btn:disabled{border-color:#333;color:#555;cursor:not-allowed}
+.hint{font-size:10px;color:#555;text-align:center;margin-top:6px}
+.cache-panel{margin-top:12px;background:rgba(39,174,96,.04);border:1px solid #27ae6033;border-radius:8px;padding:12px}
+.cache-title{font-size:11px;color:#27ae60;margin-bottom:6px;font-weight:700}
+.cache-list{max-height:120px;overflow-y:auto}
+.cache-item{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#aaa;padding:3px 0;border-bottom:1px solid #1e2228}
+.cache-del{background:transparent;border:none;color:#c0392b;cursor:pointer;font-size:12px}
+.free-tag{font-size:9px;padding:2px 7px;background:rgba(39,174,96,.15);border:1px solid #27ae6055;border-radius:10px;color:#27ae60;margin-right:4px}
+/* === OPTIMIZATION ROUTE PANEL (Spoke-like) === */
+.route-float{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:380px;
+  max-height:70vh;
+  background:#1a1f2e;
+  border:2px solid #ffa000;
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.6);
+  z-index:9999;
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+  cursor:grab;
+  user-select:none;
+}
+.route-float.minimized{
+  width:auto;
+  height:auto;
+  max-height:none;
+}
+.route-float-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+  padding-bottom:8px;
+  border-bottom:1px solid #ffa000;
+  cursor:grab;
+}
+.route-float-header:active{
+  cursor:grabbing;
+}
+.route-float-title{
+  color:#ffa000;
+  font-weight:bold;
+  flex:1;
+}
+.route-float-controls{
+  display:flex;
+  gap:8px;
+}
+.route-float-btn{
+  background:#ffa000;
+  border:none;
+  color:#000;
+  padding:4px 8px;
+  border-radius:4px;
+  cursor:pointer;
+  font-size:12px;
+}
+.route-float-content{
+  overflow-y:auto;
+  flex:1;
+  margin-bottom:12px;
+}
+.route-float.show{display:flex;flex-direction:column;gap:14px}
+.route-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffa00044;padding-bottom:10px}
+.route-title{font-size:13px;color:#ffa000;font-weight:700}
+.route-close{background:transparent;border:none;color:#888;cursor:pointer;font-size:16px}
+.route-progress{font-size:11px;color:#888;text-align:center}
+.route-card{background:rgba(255,160,0,.06);border:1px solid #ffa00055;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.route-addr-block{display:flex;flex-direction:column;gap:6px}
+.route-addr-text{font-size:15px;font-weight:700;color:#e8e2d4}
+.route-meta{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#aaa}
+.route-meta-row{display:flex;gap:8px}
+.route-meta-label{color:#888;min-width:50px}
+.route-type{display:inline-block;font-size:11px;padding:3px 8px;border-radius:4px;margin-top:4px}
+.route-type.delivery{background:rgba(255,160,0,.2);color:#ffa000}
+.route-type.pickup{background:rgba(39,174,96,.2);color:#27ae60}
+.route-btns{display:flex;gap:8px;flex-wrap:wrap}
+.route-btn{flex:1;min-width:60px;padding:12px;font-size:12px;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-family:inherit;text-align:center}
+.route-nav{background:#3498db;color:#fff}
+.route-nav:hover{background:#2980b9}
+.route-done{background:#27ae60;color:#fff}
+.route-done:hover{background:#229954}
+.route-cancel{background:#c0392b;color:#fff}
+.route-cancel:hover{background:#a93226}
+
+.route-progress{font-size:10px;color:#888;text-align:center;margin-top:4px}
+.optimize-btn{width:100%;padding:12px 0;background:#ffa000;color:#0d0f14;border:none;border-radius:6px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;margin-top:8px}
+.optimize-btn:disabled{background:#3a2a00;color:#ffa000;cursor:not-allowed}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/google-or-tools@9.9.3963/dist/OR-Tools-wasm.js">
+function openWhatsApp(){
+  const phone = document.querySelector('[data-phone]')?.dataset.phone;
+  if(!phone) { alert('אין מספר טלפון'); return; }
+  const msg = encodeURIComponent('שלום, אני בדרך אליך עם המשלוח 🚀');
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+</script>
+</head>
+<body>
+<button id="restore-float" onclick="showFloatingPanel()" style="position:fixed;bottom:20px;right:20px;z-index:9998;background:#ffa000;color:#000;padding:8px 12px;border:none;border-radius:6px;display:none;font-weight:bold">📍 מסלול</button>
+<div class="bg"></div>
+<!-- === OPTIMIZATION ROUTE PANEL === -->
+<div class="route-float" id="route-float">
+  <div class="route-float-header" onmousedown="startDrag(event)">
+    <span class="route-float-title">📍 נקודה נוכחית</span>
+    <div class="route-float-controls">
+      <button class="route-float-btn" onclick="minimizeFloat()">−</button>
+      <button class="route-float-btn" onclick="closeFloat()">✕</button>
+    </div>
+  </div>
+  <div class="route-float-content" id="float-content"></div>
+</div>
+    <button class="route-close" onclick="closeRoutePanel()">✕</button>
+  </div>
+  <div class="route-progress" id="routeProgress">1/52 עצירות</div>
+  <div class="route-card">
+    <div class="route-addr-block">
+      <div class="route-addr-text" id="routeText">כתובה...</div>
+      <div class="route-meta">
+        <div class="route-meta-row">
+          <span class="route-meta-label">👤 שם:</span>
+          <span id="routeName">-</span>
+        </div>
+        <div class="route-meta-row">
+          <span class="route-meta-label">📞 טלפון:</span>
+          <span id="routePhone">-</span>
+        </div>
+        <div class="route-meta-row">
+          <span class="route-meta-label">📦 חבילות:</span>
+          <span id="routePackages">0</span>
+        </div>
+        <div class="route-meta-row">
+          <span class="route-meta-label">הערות:</span>
+          <span id="routeNotes" style="font-size:11px;color:#ffa000">-</span>
+        </div>
+      </div>
+      <div id="routeTypeDiv"></div>
+    </div>
+  </div>
+  <div class="route-btns">
+    <button class="route-btn route-nav" onclick="openWaze()">📍 נווט</button>
+    <button class="route-btn route-done" onclick="markDelivered()">✓ נמסר</button>
+    <button class="route-btn" style="background:#3498db;color:#fff" onclick="updateCurrentLocation()">📍 עדכן מיקום</button>
+    <button class="route-btn route-cancel" onclick="markSkipped()">❌ בטל</button>
+  </div>
+</div>
+<div class="wrap">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+    <span style="font-size:22px;color:#ffa000">&#9672;</span>
+    <h1>DeliveryJet</h1>
+  </div>
+  <p class="sub">SmartRun &#8594; Spoke + &#1488;&#1504;&#1513;&#1497; &#1511;&#1513;&#1512;</p>
+
+  <!-- Contacts import -->
+  <div style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <label style="font-size:11px;color:#888">&#128241; &#1488;&#1504;&#1513;&#1497; &#1511;&#1513;&#1512; &#1489;&#1496;&#1500;&#1508;&#1493;&#1503;</label>
+      <span id="contacts-count" style="font-size:10px;color:#555"></span>
+    <span id="contacts-date" style="font-size:10px;color:#555"></span>
+    </div>
+    <input type="file" id="f-vcf-in" accept=".vcf,text/vcard" style="display:none">
+    
+    <button id="vcf-load-btn" onclick="syncContacts()" style="width:100%;padding:11px;background:linear-gradient(135deg,#1a2a1a,#0d1a0d);border:1px solid #27ae60;color:#27ae60;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:1px">
+      &#128241; &#1505;&#1504;&#1499;&#1512;&#1503; &#1488;&#1504;&#1513;&#1497; &#1511;&#1513;&#1512; &#1502;&#1492;&#1496;&#1500;&#1508;&#1493;&#1503;
+    </button>
+    <p style="font-size:10px;color:#555;margin-top:4px;text-align:center">&#1488;&#1493; <button onclick="openVCFPicker()" style="background:transparent;border:none;color:#888;cursor:pointer;font-family:inherit;font-size:10px;text-decoration:underline">&#1492;&#1506;&#1500;&#1492; VCF &#1497;&#1491;&#1504;&#1497;&#1514;</button></p>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <input id="debug-phone" placeholder="&#1496;&#1500;&#1508;&#1493;&#1503; &#1500;&#1489;&#1491;&#1497;&#1511;&#1492;" style="flex:1;background:#111418;border:1px solid #333;border-radius:6px;color:#e8e2d4;font-family:inherit;font-size:12px;padding:7px 10px;outline:none">
+      <button onclick="debugContact()" style="background:transparent;border:1px solid #9b59b6;color:#9b59b6;padding:7px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px">&#128269; &#1489;&#1491;&#1493;&#1511;</button>
+    </div>
+    <div id="debug-result" style="display:none;margin-top:6px;padding:8px;background:#111418;border:1px solid #333;border-radius:6px;font-size:11px;color:#aaa;line-height:1.8;word-break:break-all"></div>
+    <p style="font-size:10px;color:#555;margin-top:4px;line-height:1.6">Android: &#1488;&#1504;&#1513;&#1497; &#1511;&#1513;&#1512; &#8592; &#8942; &#8592; &#1497;&#1497;&#1510;&#1493;&#1488; &#8592; &#1513;&#1502;&#1493;&#1512; VCF</p>
+  </div>
+  <hr class="divider">
+
+  <div class="tabs">
+    <button class="tab on" id="tab-pdf" onclick="setMode('pdf')">&#128196; PDF <span class="free-tag">&#1500;&#1500;&#1488; AI</span></button>
+    <button class="tab" id="tab-img" onclick="setMode('img')">&#128247; &#1514;&#1502;&#1493;&#1504;&#1492;</button>
+  </div>
+
+  <div id="panel-pdf">
+    <input type="file" id="f-pdf" accept=".pdf,application/pdf" style="display:none">
+    <div id="pdf-drop" class="upload-zone" onclick="document.getElementById('f-pdf').click()">
+      <div style="font-size:36px;margin-bottom:8px">&#128196;</div>
+      <div style="font-size:14px;color:#ffa000;font-weight:700;margin-bottom:4px">&#1492;&#1506;&#1500;&#1492; &#1511;&#1493;&#1489;&#1509; PDF &#1513;&#1500; SmartRun</div>
+      <div style="font-size:11px;color:#555">&#1500;&#1495;&#1509; &#1500;&#1489;&#1495;&#1493;&#1512; &#183; &#1495;&#1497;&#1504;&#1502;&#1497; &#183; &#1491;&#1497;&#1493;&#1511; 100%</div>
+    </div>
+    <div id="pdf-ok" style="display:none"></div>
+  </div>
+
+  <div id="panel-img" style="display:none">
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:11px;color:#888;margin-bottom:6px">&#128273; &#1502;&#1508;&#1514;&#1495; API &#8212; Anthropic</label>
+      <div class="row">
+        <input type="password" id="apikey" placeholder="sk-ant-api03-...">
+        <button onclick="toggleKey()" style="background:transparent;border:1px solid #333;color:#888;padding:10px 12px;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;flex-shrink:0">&#128065;</button>
+      </div>
+    </div>
+    <input type="file" id="f-cam" accept="image/*" capture="environment" style="display:none">
+    <input type="file" id="f-gal" accept="image/*" style="display:none">
+    <div id="img-drop">
+      <div class="img-btns">
+        <button class="img-btn" onclick="document.getElementById('f-cam').click()"><div style="font-size:28px">&#128247;</div>&#1510;&#1500;&#1501; &#1491;&#1507;</button>
+        <button class="img-btn" onclick="document.getElementById('f-gal').click()"><div style="font-size:28px">&#128444;&#65039;</div>&#1490;&#1500;&#1512;&#1497;&#1492;</button>
+      </div>
+    </div>
+    <div id="img-prev" class="preview-wrap" style="display:none">
+      <img id="prev-img" src="" alt="">
+      <button class="change-btn" onclick="changeImg()">&#10005; &#1492;&#1495;&#1500;&#1507;</button>
+    </div>
+  </div>
+
+  <!-- === SETTINGS PANEL === -->
+  <div id="settingsPanel" style="position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.7);display:none;align-items:flex-end">
+    <div style="width:100%;background:#0d0f14;border-top:2px solid #ffa000;padding:20px;max-height:60vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h3 style="color:#ffa000;margin:0">⚙️ הגדרות</h3>
+        <button onclick="closeSettings()" style="background:transparent;border:none;color:#888;font-size:20px;cursor:pointer">✕</button>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="display:block;color:#aaa;font-size:12px;margin-bottom:6px">🏠 כתובת הבית (נקודת סיום):</label>
+        <input type="text" id="homeAddress" placeholder="דוגמה: גפן 87 זיתן" style="width:100%;padding:10px;background:#1a1f28;border:1px solid #ffa00044;border-radius:6px;color:#e8e2d4;font-family:inherit;font-size:13px;box-sizing:border-box">
+        <p style="font-size:10px;color:#888;margin-top:4px">זו תהיה הנקודה הסופית של כל מסלול שתבנה. לא תהיה חלוקת חבילות שם, רק נקודת חזרה הביתה.</p>
+        <div id="homeAddressStatus" style="font-size:10px;color:#ffa000;margin-top:6px">⚠ לא מוקם עדיין</div>
+      </div>
+      <button onclick="saveHomeAddress()" style="width:100%;padding:12px;background:#27ae60;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px">💾 שמור וחפש</button>
+      <button onclick="openHomeMapPicker()" style="width:100%;padding:12px;background:#3498db;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit">📍 סמן על המפה</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:8px">
+    <button class="run-btn" id="run-btn" onclick="run()" style="flex:1">▶ נתח וממפה</button>
+    <button class="run-btn" onclick="openSettings()" style="background:#555;width:50px">⚙️</button>
+    <button class="run-btn" onclick="installApp()" style="background:#27ae60;width:auto">📲 התקן אפליקציה</button>
+  </div>
+  <div id="status" style="display:none"></div>
+  <div id="results" style="display:none"></div>
+  <div id="cache-sec" style="display:none"></div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let mode='pdf',pdfText='',imgB64=null,imgMime=null,stops=[];
+let existingPhones=new Set();
+
+// Google Geocoding API key. Restricted to referrer cryptojet.duckdns.org/* + Geocoding API only + 300/day,
+// so exposure in client source is contained. Paste your key here ON YOUR DEVICE ONLY — never commit it.
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult)=>{
+      if(choiceResult.outcome==='accepted'){
+        alert('✓ אפליקציה מתקינה!');
+      }
+      deferredPrompt=null;
+    });
+  }else{
+    alert('⚠ אפליקציה כבר מותקנת או לא זמינה');
+  }
+}
+
+const GEO_KEY='AIzaSyB0_dmU7wNRloKzUKj-6vrDusg_v4I0K5I';
+
+// Cache
+const CK='rb_v6';
+function loadCache(){try{return JSON.parse(localStorage.getItem(CK)||'{}')}catch{return{}}}
+function saveCache(c){try{localStorage.setItem(CK,JSON.stringify(c))}catch{}}
+function normKey(a){return String(a).trim().replace(/\s+/g,' ').toLowerCase()}
+function cacheGet(a){return loadCache()[normKey(a)]||null}
+function cacheSet(a,lat,lon,meta){const c=loadCache();c[normKey(a)]={lat,lon,verified:meta&&meta.verified,cityOnly:meta&&meta.cityOnly};saveCache(c)}
+function cacheDel(a){const c=loadCache();delete c[normKey(a)];saveCache(c)}
+
+// Per-recipient memory keyed by phone (stable). Holds name + address + real pin + status.
+// manual:true = user-confirmed (sticky, always wins). manual:false = auto-saved verified geocode.
+function loadFixes(){try{return JSON.parse(localStorage.getItem('addr_fixes_v1')||'{}');}catch{return {};}}
+function saveFixes(f){try{localStorage.setItem('addr_fixes_v1',JSON.stringify(f));}catch{}}
+function getFix(phone){if(!phone)return null;return loadFixes()[phone]||null;}
+function setFix(phone,address,lat,lon,opts){
+  if(!phone)return;const f=loadFixes();const prev=f[phone]||{};
+  opts=opts||{};
+  f[phone]={
+    name:opts.name!=null?opts.name:(prev.name||''),
+    address,lat,lon,
+    verified:opts.verified!=null?opts.verified:(prev.verified||false),
+    streetOnly:opts.streetOnly!=null?opts.streetOnly:(prev.streetOnly||false),
+    cityOnly:opts.cityOnly!=null?opts.cityOnly:(prev.cityOnly||false),
+    manual:opts.manual!=null?opts.manual:(prev.manual||false),
+    ts:Date.now()
+  };
+  saveFixes(f);
+}
+function delFix(phone){const f=loadFixes();delete f[phone];saveFixes(f);}
+
+// Quoted-Printable decoder
+function decodeQP(str){
+  // Join soft line breaks first (= at end of line means continuation)
+  const joined=str.replace(/=\r?\n/g,'');
+  try{return decodeURIComponent(joined.replace(/=([0-9A-Fa-f]{2})/g,'%$1'));}
+  catch{return joined.replace(/=([0-9A-Fa-f]{2})/g,(_,h)=>String.fromCharCode(parseInt(h,16)));}
+}
+function joinQPLines(card){
+  return card.replace(/=\r?\n[ \t]?/g,'');
+}
+function decodeVCFField(line){
+  const ci=line.indexOf(':');if(ci===-1)return line;
+  const pfx=line.slice(0,ci).toUpperCase();
+  let val=line.slice(ci+1);
+  if(pfx.includes('QUOTED-PRINTABLE'))val=decodeQP(val);
+  return val.trim();
+}
+function normalizePhone(p){
+  if(!p)return null;
+  let d=String(p).replace(/\D/g,'');
+  if(d.startsWith('972'))d='0'+d.slice(3);
+  if(d.length>=9&&d.length<=10)return d;
+  return null;
+}
+function isNewContact(phone){
+  if(!phone||existingPhones.size===0)return true;
+  const n=normalizePhone(phone);
+  return n&&!existingPhones.has(n);
+}
+
+// Address extraction from text
+function extractAddrFromText(text){
+  if(!text)return '';
+  const clean=text.replace(/[\u{1F300}-\u{1FFFF}]/gu,' ').replace(/[-|/\\]/g,' ').replace(/\s+/g,' ').trim();
+  const p1=clean.match(/([\u0590-\u05FF][\u0590-\u05FF' -]{1,20})\s+(\d{1,4})\s+([\u0590-\u05FF][\u0590-\u05FF ]{1,15})/);
+  if(p1)return (p1[1]+' '+p1[2]+' '+p1[3]).trim();
+  const p3=clean.match(/([\u0590-\u05FF][\u0590-\u05FF' -]{2,20})\s+(\d{1,4})/);
+  if(p3)return (p3[1]+' '+p3[2]).trim();
+  return '';
+}
+function getAddressFromContacts(phone,cityHint){
+  if(!phone||!window.existingContacts)return '';
+  const n=normalizePhone(phone);if(!n)return '';
+  const c=window.existingContacts[n];if(!c)return '';
+  const fields=[c.address||'',c.note||'',c.name||''];
+  for(const field of fields){
+    if(!field||field.length<3)continue;
+    if(/[\u0590-\u05FF]/.test(field)&&/\d/.test(field)){
+      const addr=extractAddrFromText(field);
+      if(addr.length>4){
+        // Always append city hint if it's not already included
+        const finalA = (cityHint&&cityHint.length>1&&!addr.includes(cityHint))
+          ? addr+' '+cityHint : addr;
+        return finalA;
+      }
+    }
+  }
+  return '';
+}
+
+// Init
+window.addEventListener('DOMContentLoaded',()=>{
+  // Version 4: only clear if major version change
+  if(localStorage.getItem('contacts_v')==='1'||localStorage.getItem('contacts_v')==='2'){
+    localStorage.removeItem('existing_phones');
+    localStorage.removeItem('existing_contacts');
+  }
+  const k=localStorage.getItem('ant_v6');if(k)document.getElementById('apikey').value=k;
+  document.getElementById('apikey').addEventListener('change',()=>localStorage.setItem('ant_v6',document.getElementById('apikey').value.trim()));
+  // Load saved contacts
+  try{
+    const saved=localStorage.getItem('existing_phones');
+    if(saved){
+      existingPhones=new Set(JSON.parse(saved));
+      const savedC=localStorage.getItem('existing_contacts');
+      if(savedC)window.existingContacts=JSON.parse(savedC);
+      // Show last sync date
+      const _sd=localStorage.getItem('contacts_date');
+      const _de=document.getElementById('contacts-date');
+      if(_sd&&_de){
+        const _days=Math.floor((Date.now()-parseInt(_sd))/(1000*60*60*24));
+        if(_days===0)_de.textContent=' · סונכרן היום';
+        else if(_days===1)_de.textContent=' · סונכרן אתמול';
+        else if(_days<=7)_de.textContent=' · לפני '+_days+' ימים';
+        else{_de.textContent=' · לפני '+_days+' ימים ⚠ מומלץ לעדכן';_de.style.color='#e67e22';}
+      }
+      const btn=document.getElementById('vcf-load-btn');
+      btn.textContent='\u2713 '+existingPhones.size+' \u05e0\u05d8\u05e2\u05e0\u05d5 \u00b7 \u05dc\u05d7\u05e5 \u05dc\u05e2\u05d3\u05db\u05df';
+      btn.style.color='#27ae60';btn.style.borderColor='#27ae60';
+      document.getElementById('contacts-count').textContent=existingPhones.size+' \u05e0\u05d8\u05e2\u05e0\u05d5';
+    }
+  }catch{}
+  // File input listeners
+  document.getElementById('f-vcf-in').addEventListener('change',function(){
+    if(this.files&&this.files[0])loadExistingContacts(this.files[0]);
+  });
+  document.getElementById('f-pdf').addEventListener('change',function(){
+    if(this.files&&this.files[0])handlePDF(this.files[0]);
+  });
+  document.getElementById('f-cam').addEventListener('change',function(){
+    if(this.files&&this.files[0])handleImg(this.files[0]);
+  });
+  document.getElementById('f-gal').addEventListener('change',function(){
+    if(this.files&&this.files[0])handleImg(this.files[0]);
+  });
+  renderCache();
+});
+
+function toggleKey(){const el=document.getElementById('apikey');el.type=el.type==='password'?'text':'password';}
+function getKey(){return document.getElementById('apikey').value.trim();}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('tab-pdf').className='tab'+(m==='pdf'?' on':'');
+  document.getElementById('tab-img').className='tab'+(m==='img'?' on':'');
+  document.getElementById('panel-pdf').style.display=m==='pdf'?'':'none';
+  document.getElementById('panel-img').style.display=m==='img'?'':'none';
+  clearResults();
+}
+
+function syncContacts(){openVCFPicker();}
+
+async function syncContacts(){
+  const btn=document.getElementById('vcf-load-btn');
+  // Try Contact Picker API (works on HTTPS only)
+  if('contacts' in navigator&&navigator.contacts&&navigator.contacts.select){
+    try{
+      btn.textContent='⏳ בוחר אנשי קשר...';
+      btn.style.color='#ffa000';btn.style.borderColor='#ffa000';
+      const props=['name','tel','address'];
+      const opts={multiple:true};
+      const contacts=await navigator.contacts.select(props,opts);
+      if(!contacts||!contacts.length){
+        btn.textContent='⚠ לא נבחרו';
+        btn.style.color='#888';btn.style.borderColor='#444';
+        return;
+      }
+      const phoneMap=Object.assign({},window.existingContacts||{});
+      for(const c of contacts){
+        const cname=(c.name&&c.name[0])||'';
+        let addr='';
+        if(c.address&&c.address[0]){
+          const a=c.address[0];
+          addr=[a.addressLine,a.city].filter(Boolean).join(' ').trim();
+        }
+        for(const tel of (c.tel||[])){
+          const p=normalizePhone(tel);
+          if(p)phoneMap[p]={phone:p,name:cname,address:addr,note:''};
+        }
+      }
+      existingPhones=new Set(Object.keys(phoneMap));
+      window.existingContacts=phoneMap;
+      try{
+        localStorage.setItem('existing_phones',JSON.stringify([...existingPhones]));
+        const compact={};
+        for(const[k,v]of Object.entries(phoneMap)){
+          if(v.name||v.address)compact[k]={name:v.name||'',address:v.address||'',note:v.note||''};
+        }
+        localStorage.setItem('existing_contacts',JSON.stringify(compact));
+        localStorage.setItem('contacts_v','4');
+        localStorage.setItem('contacts_date',Date.now().toString());
+        localStorage.setItem('contacts_date',Date.now().toString());
+      }catch(ex){}
+      btn.textContent='✓ '+existingPhones.size+' נסנכרנו • לחץ לעדכן';
+      btn.style.color='#27ae60';btn.style.borderColor='#27ae60';
+      btn.style.background='linear-gradient(135deg,#1a2a1a,#0d1a0d)';
+      document.getElementById('contacts-count').textContent=existingPhones.size+' נסנכרנו';
+      if(stops.length)renderResults();
+      return;
+    }catch(e){
+      console.log('Contact Picker:',e.message);
+    }
+  }
+  // Fallback to VCF
+  openVCFPicker();
+}
+
+function openVCFPicker(){document.getElementById('f-vcf-in').click();}
+
+function loadExistingContacts(file){
+  if(!file)return;
+  const btn=document.getElementById('vcf-load-btn');
+  btn.textContent='\u23f3 \u05d8\u05d5\u05e2\u05df...';btn.style.color='#ffa000';btn.style.borderColor='#ffa000';
+  const r=new FileReader();
+  r.onload=e=>{
+    const text=e.target.result;
+    const phoneMap={};
+    const cards=text.split(/BEGIN:VCARD/i).slice(1);
+    let i=0;
+    function processChunk(){
+      const chunkEnd=Math.min(i+200,cards.length);
+      for(;i<chunkEnd;i++){
+        const card=cards[i];
+        const phones=[...card.matchAll(/TEL[^:]*:([+0-9 \t\r\n\-()+]+)/gi)]
+          .map(m=>normalizePhone(m[1])).filter(Boolean);
+        if(!phones.length)continue;
+        const c2=joinQPLines(card);
+        let cname='',addr='',cnote='';
+        const fnLine=c2.match(/FN[^\r\n]*/i);if(fnLine)cname=decodeVCFField(fnLine[0]);
+        const adrLine=c2.match(/ADR[^\r\n]*/i);
+        if(adrLine){const dec=decodeVCFField(adrLine[0]);addr=dec.split(';').map(p=>p.trim()).filter(Boolean).join(' ').trim();}
+        const noteLine=c2.match(/NOTE[^\r\n]*/i);if(noteLine)cnote=decodeVCFField(noteLine[0]);
+        if(!addr&&cnote&&cnote.length>3)addr=cnote;
+        for(const p of phones)phoneMap[p]={phone:p,address:addr||'',name:cname,note:cnote};
+      }
+      btn.textContent='\u23f3 '+i+'/'+cards.length+'...';
+      if(i<cards.length){setTimeout(processChunk,0);}
+      else{
+        // MERGE with existing contacts (don't replace)
+        const merged=Object.assign({},window.existingContacts||{},phoneMap);
+        existingPhones=new Set(Object.keys(merged));
+        window.existingContacts=merged;
+        try{
+          localStorage.setItem('existing_phones',JSON.stringify([...existingPhones]));
+          const compact={};
+          for(const[k,v]of Object.entries(merged)){
+            if(v.name||v.address||v.note)compact[k]={name:v.name||'',address:v.address||'',note:v.note||''};
+          }
+          localStorage.setItem('existing_contacts',JSON.stringify(compact));
+          localStorage.setItem('contacts_v','4');
+        }catch(ex){
+          try{localStorage.setItem('existing_phones',JSON.stringify([...existingPhones]));localStorage.setItem('contacts_v','4');}catch{}
+        }
+        btn.textContent='\u2713 '+existingPhones.size+' \u05e0\u05d8\u05e2\u05e0\u05d5 \u00b7 \u05dc\u05d7\u05e5 \u05dc\u05e2\u05d3\u05db\u05df';
+        btn.style.color='#27ae60';btn.style.borderColor='#27ae60';
+        document.getElementById('contacts-count').textContent=existingPhones.size+' \u05e0\u05d8\u05e2\u05e0\u05d5';
+        document.getElementById('f-vcf-in').value='';
+        if(stops.length)renderResults();
+      }
+    }
+    processChunk();
+  };
+  r.readAsText(file,'utf-8');
+}
+
+function debugContact(){
+  const phone=document.getElementById('debug-phone').value.trim();
+  const el=document.getElementById('debug-result');el.style.display='';
+  if(!phone){el.innerHTML='\u05d4\u05d6\u05df \u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df';return;}
+  const n=normalizePhone(phone);
+  el.innerHTML='\u05de\u05e1\u05e4\u05e8 \u05de\u05e0\u05d5\u05e8\u05de\u05dc: '+n+'<br>';
+  if(!window.existingContacts){el.innerHTML+='\u274c \u05dc\u05d0 \u05e0\u05d8\u05e2\u05e0\u05d5';return;}
+  const c=window.existingContacts[n];
+  if(!c){el.innerHTML+='\u274c \u05dc\u05d0 \u05e0\u05de\u05e6\u05d0';return;}
+  el.innerHTML+='\u2713 \u05e0\u05de\u05e6\u05d0!<br>'+
+    '\u05e9\u05dd: '+esc(c.name||'\u2014')+'<br>'+
+    '\u05db\u05ea\u05d5\u05d1\u05ea (ADR): '+esc(c.address||'\u2014')+'<br>'+
+    '\u05d4\u05e2\u05e8\u05d4 (NOTE): '+esc(c.note||'\u2014')+'<br>'+
+    '\u2500\u2500\u2500<br>'+
+    '\u05db\u05ea\u05d5\u05d1\u05ea \u05e9\u05d7\u05d5\u05dc\u05e6\u05d4: '+esc(getAddressFromContacts(phone,'')||'\u05dc\u05d0')+'<br>\u05e2\u05dd \u05d9\u05d2\u05dc: '+esc(getAddressFromContacts(phone,'\u05d9\u05d2\u05dc')||'\u05dc\u05d0');
+}
+
+// PDF
+async function handlePDF(file){
+  if(!file)return;
+  setStatus('\u23f3 \u05e7\u05d5\u05e8\u05d0 PDF...');
+  try{
+    const ab=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:ab}).promise;
+    let text='';
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const c=await page.getTextContent();
+      text+=c.items.map(x=>x.str).join('\n')+'\n';
+    }
+    pdfText=text;clearStatus();
+    document.getElementById('pdf-drop').style.display='none';
+    document.getElementById('pdf-ok').style.display='';
+    document.getElementById('pdf-ok').innerHTML='<div class="uploaded"><span style="font-size:20px">&#128196;</span><span style="flex:1;font-size:13px;color:#27ae60">'+file.name+'</span><button onclick="clearPDF()" style="background:transparent;border:1px solid #555;color:#888;padding:4px 10px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:11px">&#10005;</button></div><p style="font-size:11px;color:#27ae60;margin-top:8px;text-align:center">&#10003; \u05e0\u05d8\u05e2\u05df \u00b7 \u05dc\u05d7\u05e5 "\u05e0\u05ea\u05d7 \u05d5\u05de\u05de\u05e4\u05d4"</p>';
+    document.getElementById('f-pdf').value='';
+  }catch(e){setStatus('\u26a0 \u05e9\u05d2\u05d9\u05d0\u05d4: '+e.message,true);}
+}
+function clearPDF(){
+  pdfText='';
+  document.getElementById('pdf-drop').style.display='';
+  document.getElementById('pdf-ok').style.display='none';
+  clearResults();
+}
+
+function cleanAddr(s){
+  // Extract רח:"street" BEFORE cleaning
+  const rachM=s.match(/\u05e8\u05d7:"([^"]+)"/)
+    ||s.match(/\u05e8\u05d7:'([^']+)'/);
+  const rachStreet=(rachM&&/[\u0590-\u05FF]/.test(rachM[1]))?rachM[1].trim():'';
+
+  let r=s
+    // Remove phone numbers that leaked into address
+    .replace(/\s*05\d{8}\s*/g,' ')
+    // Remove טל: and after
+    .replace(/\u05d8\u05dc[:\s]*\d{7,}\s*$/,'')
+    // Remove trailing number-only like 0545343746
+    .replace(/\s+\d{9,}\s*$/,'')
+    // Remove כניסה and after
+    .replace(/\u05db\u05e0\u05d9\u05e1\u05d4.*/i,'')
+    // Remove בניין and after  
+    .replace(/\u05d1\u05e0\u05d9\u05d9\u05df.*/i,'')
+    // Remove הערות and after
+    .replace(/\u05d4\u05e2\u05e8\u05d5\u05ea.*/i,'')
+    // Remove מושב/עיר/יישוב standalone words
+    .replace(/\u05de\u05d5\u05e9\u05d1|\u05e2\u05d9\u05e8|\u05d9\u05d9\u05e9\u05d5\u05d1/g,' ')
+    .replace(/[()[\]*]/g,' ')
+    .replace(/\u05e8\u05d7:"[^"]*"/g,' ')
+    .replace(/#\d+#/g,' ')
+    // Remove trailing 1-2 digit numbers (table column leftovers)
+    .replace(/\s+\d{1,2}\s*$/,'')
+    .replace(/\s+/g,' ').trim();
+
+  // Remove duplicate suffix: "לאה אימנו 20 לוד לאה אימנו" → "לאה אימנו 20 לוד"
+  const words=r.split(' ');
+  for(let i=2;i<words.length;i++){
+    if(words[i]===words[0]){
+      // Check if this is a repetition
+      const prefix=words.slice(0,i).join(' ');
+      const suffix=words.slice(i).join(' ');
+      if(prefix.includes(suffix.split(' ')[0]))r=prefix;
+      break;
+    }
+  }
+
+  // If רח: found, rebuild: street + number + city
+  if(rachStreet){
+    const numM=r.match(/\d{1,4}/);const num=numM?numM[0]:'';
+    // Match Hebrew words including " (for כפר חב"ד)
+  const hw=r.match(/[\u0590-\u05FF]+(?:"[\u0590-\u05FF]+)*(?:\s+[\u0590-\u05FF]+(?:"[\u0590-\u05FF]+)*)*/g)||[];
+  const city=hw[hw.length-1]||'';
+    if(num&&city&&city!==rachStreet)r=rachStreet+' '+num+' '+city;
+    else r=rachStreet+(num?' '+num:'')+(city&&city!==rachStreet?' '+city:'');
+  }
+
+  // Handle "ללא רחוב N CITY" → keep as "CITY" (will be geocoded as city center)
+  if(r.startsWith('\u05dc\u05dc\u05d0 \u05e8\u05d7\u05d5\u05d1')){
+    const cityM=r.match(/[\u0590-\u05FF]{2,}(?:\s+[\u0590-\u05FF\u0022]{2,})*$/);
+    r=cityM?cityM[0]:'';
+  }
+
+  return r.trim();
+}
+
+// ===== Address verification + name-stripping helpers =====
+// Known cities/moshavim in the delivery region (longest-first matching matters)
+const REGION_CITIES=[
+ '\u05d1\u05d9\u05ea \u05d7\u05e9\u05de\u05d5\u05e0\u05d0\u05d9','\u05d1\u05d9\u05ea \u05d3\u05d2\u05df','\u05db\u05e4\u05e8 \u05d7\u05d1"\u05d3','\u05db\u05e4\u05e8 \u05d7\u05d1\u05d3','\u05db\u05e4\u05e8 \u05e9\u05de\u05d5\u05d0\u05dc','\u05db\u05e4\u05e8 \u05d3\u05e0\u05d9\u05d0\u05dc','\u05db\u05e8\u05de\u05d9 \u05d9\u05d5\u05e1\u05e3',
+ '\u05d9\u05d3 \u05e8\u05de\u05d1"\u05dd','\u05de\u05e9\u05de\u05e8 \u05d4\u05e9\u05d1\u05e2\u05d4','\u05e0\u05d5\u05e3 \u05d0\u05d9\u05d9\u05dc\u05d5\u05df','\u05d1\u05df \u05e9\u05de\u05df','\u05d2\u05df \u05d9\u05d1\u05e0\u05d4','\u05e0\u05e1 \u05e6\u05d9\u05d5\u05e0\u05d4','\u05e8\u05d0\u05e9\u05d5\u05df \u05dc\u05e6\u05d9\u05d5\u05df',
+ '\u05d0\u05d7\u05d9\u05e1\u05de\u05da','\u05d0\u05d7\u05d9\u05e2\u05d6\u05e8','\u05e2\u05d7\u05d9\u05e2\u05d6\u05e8','\u05d2\u05d9\u05e0\u05ea\u05d5\u05df','\u05d2\u05de\u05d6\u05d5','\u05d6\u05d9\u05ea\u05df','\u05d7\u05d3\u05d9\u05d3','\u05d7\u05de\u05d3','\u05d9\u05d2\u05dc','\u05d9\u05e9\u05e8\u05e9',
+ '\u05de\u05e6\u05dc\u05d9\u05d7','\u05e2\u05d6\u05e8\u05d9\u05d4','\u05e4\u05ea\u05d7\u05d9\u05d4','\u05e6\u05e4\u05e8\u05d9\u05d4','\u05e9\u05e2\u05dc\u05d1\u05d9\u05dd','\u05d2\u05d6\u05e8','\u05dc\u05d5\u05d3','\u05e8\u05de\u05dc\u05d4','\u05e8\u05d7\u05d5\u05d1\u05d5\u05ea','\u05d9\u05d1\u05e0\u05d4',
+ '\u05d0\u05d6\u05d5\u05e8','\u05de\u05db\u05d1\u05d9\u05dd','\u05de\u05d5\u05d3\u05d9\u05e2\u05d9\u05df','\u05e9\u05d5\u05d4\u05dd'
+];
+const _normTok=t=>String(t).replace(/["'`\u05f3\u05f4]/g,'').replace(/[()\[\]*]/g,'').trim();
+const _normCity=c=>_normTok(c).replace(/^\u05d4/,'').replace(/\s+/g,' ').trim();
+const _reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+// Find a known city token inside an address; returns {idx,len,city} or null.
+// Match on a gershayim/quote-normalized copy of BOTH sides so כפר חב"ד / יד רמב"ם
+// (which carry an internal ") are still recognized.
+function findCityInAddr(a){
+  const aN=a.replace(/["'`\u05f3\u05f4]/g,'');           // normalized address for matching
+  const sorted=[...REGION_CITIES].sort((x,y)=>y.length-x.length);
+  for(const c of sorted){
+    const cN=_normTok(c).replace(/["'`\u05f3\u05f4]/g,''); // normalized city
+    const m=aN.match(new RegExp('(^|\\s)'+_reEsc(cN)+'(\\s|$)'));
+    if(m){
+      // Locate the city start in the ORIGINAL string by stripping quotes
+      // from a sliding window until it matches the normalized city.
+      let idx=-1;
+      for(let i=0;i<a.length;i++){
+        if(a.slice(i).replace(/["'`\u05f3\u05f4]/g,'').startsWith(cN)){idx=i;break;}
+      }
+      if(idx<0)idx=a.length;
+      return {idx,len:cN.length,city:c};
+    }
+  }
+  return null;
+}
+// Keep ONLY street + house number + city; strip recipient-name tokens & post-city junk
+function sanitizeAddress(rawAddr,recipientName){
+  let a=_normTok(rawAddr).replace(/\s+/g,' ').trim();
+  a=a.replace(/[A-Za-z]{2,}/g,' ').replace(/0[5]\d{6,9}/g,' ').replace(/\s+/g,' ').trim();
+  const num=(a.match(/(?:^|\s)(\d{1,4})(?:\s|$)/)||[,''])[1];
+  const cm=findCityInAddr(a);
+  const city=cm?cm.city:'';
+  let zone=cm?a.slice(0,cm.idx):a;                 // everything AFTER the city is discarded
+  let words=zone.split(' ').filter(w=>w&&!/^\d+$/.test(w));
+  if(recipientName){
+    const nameTok=_normTok(recipientName).split(/\s+/).filter(t=>t.length>1&&/[\u05d0-\u05ea]/.test(t));
+    const stripped=new Set();
+    while(words.length&&nameTok.includes(words[0])){stripped.add(words[0]);words.shift();}
+    // trailing: remove a full 2+ word name at the end, OR a lone word that duplicates
+    // a front-stripped token (real leak). Never strip a single street word like "דולב".
+    let run=0;for(let i=words.length-1;i>=0&&nameTok.includes(words[i]);i--)run++;
+    if(run>=2)words.splice(words.length-run,run);
+    while(words.length&&nameTok.includes(words[words.length-1])&&stripped.has(words[words.length-1]))words.pop();
+  }
+  words=words.filter((w,i,arr)=>w!==arr[i-1]);     // collapse doubled words
+  const street=words.join(' ').trim();
+  if(!street&&city&&num)return (city+' '+num).trim();   // locality-as-street: "יד רמב\"ם 49"
+  return [street,num,city].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+}
+// City of a Nominatim result + match test (the real anti-Tel-Aviv guard)
+const _cityOfResult=r=>{const x=(r&&r.address)||{};return x.city||x.town||x.village||x.municipality||x.hamlet||x.suburb||x.quarter||'';};
+function cityMatches(resultCityRaw,expectedCity){
+  if(!expectedCity)return true;
+  const a=_normCity(resultCityRaw),b=_normCity(expectedCity);
+  if(!a)return false;
+  return a===b||a.includes(b)||b.includes(a);
+}
+
+function isWeakAddr(a){
+  if(!a||a.length<3||!/\d/.test(a))return true;
+      if(/\s0(\s|$)/.test(a))return true;
+  const cities=['\u05d9\u05d2\u05dc','\u05dc\u05d5\u05d3','\u05e8\u05de\u05dc\u05d4','\u05d7\u05de\u05d3','\u05d6\u05d9\u05ea\u05df','\u05d2\u05d9\u05e0\u05ea\u05d5\u05df','\u05e6\u05e4\u05e8\u05d9\u05d4','\u05d0\u05d7\u05d9\u05e2\u05d6\u05e8','\u05de\u05db\u05d1\u05d9\u05dd','\u05d0\u05d7\u05d9\u05e1\u05de\u05da','\u05d1\u05d9\u05ea \u05d3\u05d2\u05df'];
+  const fw=a.trim().split(/\s+/)[0];
+  if(cities.includes(fw))return true;
+  const ws=a.trim().split(/\s+/);
+  return ws.length<=2&&/^\d+$/.test(ws[ws.length-1]);
+}
+
+function extractFromPDF(text){
+  const addrMap=new Map();
+  const lines=text.split('\n');
+  const hasForward=lines.some(l=>l.includes('\u05e4\u05d9\u05d6\u05d5\u05e8'));
+  const hasReversed=lines.some(l=>l.includes('\u05e8\u05d5\u05d6\u05d9\u05e4'));
+
+  // === REVERSED MODE (pdfminer) ===
+  if(hasReversed&&!hasForward){
+    const pkgList=[];
+    for(const line of lines){
+      const s=line.trim();
+      if(/^\d+$/.test(s)&&parseInt(s)>=1&&parseInt(s)<=20)pkgList.push(parseInt(s));
+    }
+    let pkgIdx=0;
+    for(const line of lines){
+      const orig=line.trim();
+      if(!orig.includes('\u05e8\u05d5\u05d6\u05d9\u05e4')&&!orig.includes('\u05e4\u05d5\u05e1\u05d9\u05d0'))continue;
+      const phoneM=orig.match(/05\d{8}/);if(!phoneM)continue;
+      const phone=phoneM[0];
+      const pkgs=pkgIdx<pkgList.length?pkgList[pkgIdx++]:1;
+      let beforePhone=orig.slice(0,orig.indexOf(phone)).trim();
+      let addr=beforePhone.split('').reverse().join('').trim();
+      addr=addr.replace(/\s*\)\*\(\s*|\s*\(\*\)\s*/g,' ')
+        .replace(/\u05d4\u05e2\u05e8\u05d5\u05ea.*/,'').replace(/\u05d8\u05dc[\s:]\d*.*/,'')
+        .replace(/[A-Za-z\s]{3,}$/,'').replace(/\s+/g,' ').trim();
+      const revLine=orig.split('').reverse().join('');
+      let bon='';if(/\u05d1\u05d5\u05df/i.test(revLine))bon='\u05d1\u05d5\u05df';
+      const notesM=revLine.match(/\u05d4\u05e2\u05e8\u05d5\u05ea\s+\u05de\u05e9\u05dc\u05d5\u05d7[\s:]+([^\n\r(*]{3,40})/i);
+      const notesAddr=notesM?notesM[1].trim():'';
+      const alIdx=orig.indexOf(':\u05dc\u05d0');
+      let name='';
+      if(alIdx!==-1&&alIdx>orig.indexOf(phone))
+        name=orig.slice(orig.indexOf(phone)+phone.length,alIdx).trim().split('').reverse().join('').trim().slice(0,40);
+      const type=orig.includes('\u05e8\u05d5\u05d6\u05d9\u05e4')?'delivery':'pickup';
+      processStop(addrMap,addr,type,pkgs,phone,name,bon,notesAddr);
+    }
+    return [...addrMap.values()];
+  }
+
+  // === FORWARD MODE (PDF.js) ===
+  const fullText=lines.join('\n');
+  // Split before each delivery row. The subtype code after פיזור/איסוף is usually "לק"
+  // but can be "מא" or others, so match any 1-3 Hebrew letters followed by the order id.
+  const items=fullText.split(/(?=(?:\u05e4\u05d9\u05d6\u05d5\u05e8|\u05d0\u05d9\u05e1\u05d5\u05e3)\s+[\u05d0-\u05ea]{1,3}\s*\d{4,})/);
+
+
+  for(const item of items){
+    const typeM=item.match(/^(\u05e4\u05d9\u05d6\u05d5\u05e8|\u05d0\u05d9\u05e1\u05d5\u05e3)/);
+    if(!typeM)continue;
+    const type=typeM[1]==='\u05e4\u05d9\u05d6\u05d5\u05e8'?'delivery':'pickup';
+
+    // Package count = the אריזות column cell, which PDF.js emits as a line
+    // containing ONLY the number, right after the (*)/)*( marker.
+    // NOTE: do not read text glued to the marker on the same line — RTL flips
+    // the SMS line so e.g. "(*) 3 08:30..." would wrongly yield 3 (the SMS count).
+    let pkgs=1;
+    const sIdx=Math.max(item.lastIndexOf('(*)'),item.lastIndexOf(')*('));
+    const region=sIdx!==-1?item.slice(sIdx+3):item;
+    const standalone=region.split('\n').map(x=>x.trim()).find(x=>/^([1-9]|1[0-9]|20)$/.test(x));
+    if(standalone)pkgs=parseInt(standalone);
+
+    // Bon
+    let bon='';
+    if(/\u05d1\u05d5\u05df/i.test(item))bon='\u05d1\u05d5\u05df';
+
+    // Phone - optional, allow 9-10 digit, or look in preceding text
+    const phoneM=item.match(/0[5]\d{7,9}/);
+    let phone=phoneM?phoneM[0]:'';
+    if(phone.length===9){
+      const fm=fullText.match(new RegExp(phone+'\\d'));
+      if(fm)phone=fm[0];
+    }
+    if(!phone){
+      // Look for phone before this item in full text
+      const ip=fullText.indexOf(item.slice(0,30));
+      if(ip>0){
+        const pp=fullText.slice(Math.max(0,ip-200),ip).match(/0[5]\d{8}/g);
+        if(pp)phone=pp[pp.length-1];
+      }
+    }
+    // phone may still be empty - that's OK, delivery still gets extracted
+
+    // Name
+    let name='';
+    const alIdx=item.indexOf('\u05d0\u05dc:');
+    if(alIdx!==-1){
+      const afterAl=item.slice(alIdx+3).trim();
+      const pIdx=phone?afterAl.indexOf(phone):-1;
+      if(pIdx>0)name=afterAl.slice(0,pIdx).trim().slice(0,40);
+      else{
+        // No phone: name is first line after אל:
+        name=afterAl.split(/\n/)[0].trim().slice(0,40);
+      }
+    }
+
+    // Address extraction
+    let after='';
+    const phoneInItem=item.match(/0[5]\d{7,9}/);
+    const pStart=phoneInItem?item.indexOf(phoneInItem[0]):-1;
+    // Keywords that mark END of address
+    const stopKw=/\u05d4\u05e2\u05e8\u05d5\u05ea|\u05d1\u05e0\u05d9\u05d9\u05df|\u05db\u05e0\u05d9\u05e1\u05d4|\u05e7\u05d5\u05de\u05d4|\u05d3\u05d9\u05e8\u05d4|\u05d8\u05dc:|SMS|ETA|DOORSTEP|\u05d7\u05d5\u05d1\u05d4|\u05de\u05e9\u05dc\u05d5\u05d7/;
+    // Clean an address candidate: take only up to first stop keyword, Latin name, or marker
+    const cleanAddrCand=(txt)=>{
+      // Take first line only (address is on the delivery line)
+      const rawLines=txt.split(/\n/);
+      let s=rawLines[0];
+      // If רח:"street" opened on line 1 but its closing quote is on line 2
+      // (PDF.js line-break inside the street name), stitch the closing part back
+      // so the street can be rebuilt — otherwise the stop gets dropped.
+      const opened=/\u05e8\u05d7:["']/.test(s);
+      const closed=/\u05e8\u05d7:["'][^"'\n]*["']/.test(s);
+      if(opened&&!closed&&rawLines[1]){
+        const cm=rawLines[1].match(/^[^"'\n]*["']/);
+        if(cm)s=s+' '+cm[0];
+      }
+      // Cut at (*) or )*( markers
+      s=s.split(/\(\*\)|\)\*\(|\*/)[0];
+      // Cut at stop keywords
+      const kwM=s.match(stopKw);
+      if(kwM)s=s.slice(0,kwM.index);
+      // Cut at Latin letters (English names)
+      const latM=s.match(/[A-Za-z]{2,}/);
+      if(latM)s=s.slice(0,latM.index);
+      // Remove phone fragments
+      s=s.replace(/0[5]\d{6,9}/g,' ');
+      // Remove standalone trailing digits (pkg count / order leftover) but keep house numbers
+      s=s.replace(/\s+\d{4,}\s*$/,''); // remove 4+ digit numbers at end (order numbers)
+      return s.replace(/\s+/g,' ').trim();
+    };
+    if(pStart>=0){
+      after=cleanAddrCand(item.slice(pStart+phoneInItem[0].length));
+      if(after.length<5||!/[\u0590-\u05FF]/.test(after)){
+        let bph=item.slice(0,pStart);
+        const alp=bph.lastIndexOf('\u05d0\u05dc:');
+        if(alp!==-1)bph=bph.slice(alp+3);
+        after=cleanAddrCand(bph);
+      }
+    } else if(alIdx!==-1){
+      const fromAl=item.slice(alIdx+3);
+      const firstNL=fromAl.indexOf('\n');
+      after=cleanAddrCand(firstNL>=0?fromAl.slice(firstNL+1):fromAl);
+    }
+    // Remove recipient name if it leaked into address
+    if(name&&after.includes(name))after=after.replace(name,'').replace(/\s+/g,' ').trim();
+
+    const notesM=item.match(/\u05d4\u05e2\u05e8\u05d5\u05ea\s+\u05de\u05e9\u05dc\u05d5\u05d7[\s:]+([^\n\r(*]{3,40})/i);
+    const notesAddr=notesM?notesM[1].trim():'';
+
+    processStop(addrMap,after,type,pkgs,phone,name,bon,notesAddr);
+  }
+  return [...addrMap.values()];
+}
+
+
+function processStop(addrMap,rawAddr,type,pkgs,phone,name,bon,notesAddr){
+  // Handle cross-page: rawAddr sometimes has page header junk after phone
+  let rawToClean=rawAddr;
+  const addrPhoneM=rawAddr.match(/0[5]\d{8}/);
+  if(addrPhoneM&&addrPhoneM[0]!==phone){
+    phone=addrPhoneM[0];
+    rawToClean=rawAddr.replace(addrPhoneM[0],'').trim();
+  }
+  // If address is weak, also try the part BEFORE any ETA/time patterns
+  rawToClean=rawToClean.split(/\d{2}:\d{2}\s*\n/)[0].trim();
+  let addr=cleanAddr(rawToClean);
+  if(isWeakAddr(addr)){
+    const cityHint=addr.trim().split(/\s+/)[0]||'';
+    if(notesAddr){
+      const na=extractAddrFromText(notesAddr);
+      if(na&&na.length>3)addr=cityHint&&!na.includes(cityHint)?na+' '+cityHint:na;
+    }
+    if((isWeakAddr(addr)||!addr.includes(cityHint))&&phone){
+      const ca=getAddressFromContacts(phone,cityHint);
+      if(ca&&ca.length>3)addr=ca;
+    }
+  }
+     // City-only = skip
+    // Final clean: keep only street + number + city, strip recipient name & junk
+    if(addr&&/[\u0590-\u05FF]/.test(addr)){const sa=sanitizeAddress(addr,name);if(sa&&sa.length>2)addr=sa;}
+    if(addr===addr.split(' ')[0])addr='';
+    // Check if still has number=0 after contacts lookup (will be marked failed)
+    const hasZeroNum=/\s0(\s|$)/.test(addr)&&/[\u0590-\u05FF]/.test(addr);
+     // Validate address completeness: needs street + number>0 + city
+    function isCompleteAddr(a){
+      if(!a||a.length<5)return false;
+      const words=a.trim().split(/\s+/);
+      if(words.length<2)return false;
+      // Must have at least one Hebrew word
+      const hebrewWords=words.filter(w=>/[֐-׿]/.test(w));
+      if(hebrewWords.length<1)return false;
+      // Must have a number > 0
+      const nums=a.match(/\d+/g);
+      if(!nums||nums.every(n=>parseInt(n)===0))return false;
+      return true;
+    }
+    // Mark as failed if address is incomplete after all attempts
+    if(!isCompleteAddr(addr))addr=addr; // keep addr but will be marked failed below
+    if(addr.length>3&&addr.length<70&&/[\u0590-\u05FF]/.test(addr)&&!addr.startsWith('\u05dc\u05dc\u05d0 \u05e8\u05d7\u05d5\u05d1')){
+    const key=normKey(addr);
+    if(addrMap.has(key)){
+      const ex=addrMap.get(key);ex.packages+=pkgs;ex.deliveries++;if(bon&&!ex.bon)ex.bon=bon;
+      if(name&&!ex.recipients.find(r=>r.phone===phone))ex.recipients.push({name,phone});
+    }else{
+      addrMap.set(key,{address:addr,type,packages:pkgs,deliveries:1,
+        recipients:name?[{name,phone}]:[],name,phone,bon,
+        addrFromContacts:false,lat:null,lon:null,failed:hasZeroNum||false,fromCache:false});
+    }
+  }else{
+    // Address could not be parsed (e.g. "\u05dc\u05dc\u05d0 \u05e8\u05d7\u05d5\u05d1", Latin-only street, too short).
+    // NEVER drop it - that silently loses a package. Add it as a FAILED stop so the
+    // package is still counted and the driver can fix the location manually.
+    const shownAddr=(addr&&/[\u0590-\u05FF]/.test(addr))?addr
+      :((rawAddr||'').replace(/0[5]\d{6,9}/g,'').replace(/\s+/g,' ').trim().slice(0,60)
+        ||name||'\u05dc\u05dc\u05d0 \u05db\u05ea\u05d5\u05d1\u05ea');
+    const key='__unparsed__'+(phone||name||shownAddr)+'_'+addrMap.size;
+    addrMap.set(key,{address:shownAddr,type,packages:pkgs,deliveries:1,
+      recipients:name?[{name,phone}]:[],name,phone,bon,
+      addrFromContacts:false,lat:null,lon:null,failed:true,fromCache:false});
+  }
+}
+function handleImg(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{imgB64=e.target.result.split(',')[1];imgMime=file.type||'image/jpeg';
+    document.getElementById('img-drop').style.display='none';
+    document.getElementById('img-prev').style.display='';
+    document.getElementById('prev-img').src=e.target.result;};
+  r.readAsDataURL(file);
+}
+function changeImg(){imgB64=null;imgMime=null;document.getElementById('img-drop').style.display='';document.getElementById('img-prev').style.display='none';clearResults();}
+
+async function claudeExtract(b64,mime){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:3000,messages:[{role:'user',content:[
+      {type:'image',source:{type:'base64',media_type:mime,data:b64}},
+      {type:'text',text:'SmartRun delivery report. Extract ALL rows. For each: type("\u05e4\u05d9\u05d6\u05d5\u05e8"/"\u05d0\u05d9\u05e1\u05d5\u05e3"), name, phone(05XXXXXXXX), address(street+number+city), pkg_out(int), pkg_in(int), bon(bool), goveena(bool). Return ONLY: {"stops":[...]}'}
+    ]}]})
+  });
+  const d=await res.json();if(d.error)throw new Error(d.error.message);
+  const txt=(d.content||[]).find(b=>b.type==='text')?.text||'{}';
+  const parsed=JSON.parse(txt.replace(/[`]{3}json|[`]{3}/g,'').trim());
+  return (parsed.stops||[]).map(s=>({
+    address:cleanAddr(s.address||''),type:s.type==='\u05e4\u05d9\u05d6\u05d5\u05e8'?'delivery':'pickup',
+    packages:(s.pkg_out||0)+(s.pkg_in||0)||1,deliveries:1,
+    recipients:s.name?[{name:s.name,phone:s.phone}]:[],
+    name:s.name||'',phone:s.phone||'',
+    bon:s.bon?'\u05d1\u05d5\u05df':s.goveena?'\u05d2\u05d5\u05d1\u05d9\u05d9\u05e0\u05d0':'',
+    lat:null,lon:null,failed:false,fromCache:false
+  })).filter(s=>s.address.length>3&&/[\u0590-\u05FF]/.test(s.address)&&/\d/.test(s.address));
+}
+
+const CITY_EN={'\u05d0\u05d7\u05d9\u05e2\u05d6\u05e8':'Ahiezer','\u05d0\u05d7\u05d9\u05e1\u05de\u05da':'Ahisamakh','\u05d0\u05d6\u05d5\u05e8':'Azor','\u05d1\u05d9\u05ea \u05d3\u05d2\u05df':'Beit Dagan','\u05d1\u05df \u05e9\u05de\u05df':'Ben Shemen','\u05d2\u05d9\u05e0\u05ea\u05d5\u05df':'Ginaton','\u05d6\u05d9\u05ea\u05df':'Zeitan','\u05d7\u05de\u05d3':'Hemed','\u05d9\u05d2\u05dc':'Yagel','\u05db\u05e4\u05e8 \u05d7\u05d1""\u05d3':'Kfar Chabad','\u05dc\u05d5\u05d3':'Lod','\u05de\u05db\u05d1\u05d9\u05dd':'Maccabim','\u05de\u05e9\u05de\u05e8 \u05d4\u05e9\u05d1\u05e2\u05d4':'Mishmar HaShiva','\u05e0\u05e1 \u05e6\u05d9\u05d5\u05e0\u05d4':'Nes Ziona','\u05e6\u05e4\u05e8\u05d9\u05d4':'Tzafriya','\u05e8\u05d0\u05e9\u05d5\u05df \u05dc\u05e6\u05d9\u05d5\u05df':'Rishon LeZion','\u05e8\u05d7\u05d5\u05d1\u05d5\u05ea':'Rehovot','\u05e8\u05de\u05dc\u05d4':'Ramla','\u05d2\u05df \u05d9\u05d1\u05e0\u05d4':'Gan Yavne','\u05d9\u05d1\u05e0\u05d4':'Yavne'};
+
+// Call Google Geocoding. Returns parsed JSON ({status,results,...}) or throws on network/abort.
+async function _googleGeocode(qAddress){
+  const u='https://maps.googleapis.com/maps/api/geocode/json?'+new URLSearchParams({
+    address:qAddress, key:GEO_KEY, region:'il', language:'he', components:'country:IL'
+  }).toString();
+  const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),8000);
+  try{const r=await fetch(u,{signal:ctrl.signal});return await r.json();}
+  finally{clearTimeout(t);}
+}
+// City name out of a Google result's address_components.
+const _googleCity=res=>{
+  const comps=(res&&res.address_components)||[];
+  const byType=t=>{const c=comps.find(x=>x.types&&x.types.includes(t));return c?c.long_name:'';};
+  return byType('locality')||byType('administrative_area_level_2')||byType('sublocality')||'';
+};
+
+// PRIMARY geocoder: Google first, Nominatim as a silent fallback.
+async function geocodeAddr(rawAddr,recipientName){
+  const address=sanitizeAddress(rawAddr,recipientName||'');
+  const deGiz=s=>String(s).replace(/["'`\u05f3\u05f4]/g,'').replace(/\s+/g,' ').trim();
+  const cm=findCityInAddr(address);
+  const expectedCity=cm?deGiz(cm.city):'';
+  const qAddress=deGiz(address);
+
+  // 1) Google Geocoding. Skipped if the key placeholder wasn't replaced.
+  if(GEO_KEY && GEO_KEY.indexOf('PASTE_')!==0){
+    try{
+      const data=await _googleGeocode(qAddress+(expectedCity?'':' \u05d9\u05e9\u05e8\u05d0\u05dc'));
+      if(data&&data.status==='OK'&&Array.isArray(data.results)&&data.results.length){
+        // Anti-wrong-city guard: prefer a result whose city matches the expected one.
+        const pick=data.results.find(r=>cityMatches(_googleCity(r),expectedCity))
+                 || (expectedCity?null:data.results[0]);
+        if(pick){
+          const loc=pick.geometry&&pick.geometry.location;
+          const lt=(pick.geometry&&pick.geometry.location_type)||'';
+          // Map Google precision -> existing pin-confidence flags.
+          let verified=false,streetOnly=false,cityOnly=false,approximate=false;
+          if(lt==='ROOFTOP'){verified=true;}
+          else if(lt==='RANGE_INTERPOLATED'||lt==='GEOMETRIC_CENTER'){streetOnly=true;}
+          else{cityOnly=true;approximate=true;}            // APPROXIMATE / locality-level
+          if(loc)return {lat:+loc.lat,lon:+loc.lng,
+            verified,streetOnly,cityOnly,approximate,
+            gotCity:_googleCity(pick),expectedCity,
+            streetNote:cityOnly?address:undefined,source:'google'};
+        }
+        // Google answered but city mismatched -> fall through for a Nominatim second opinion.
+      }
+      // ZERO_RESULTS / OVER_QUERY_LIMIT / REQUEST_DENIED -> fall through silently.
+    }catch{ /* network/abort -> fall through to Nominatim */ }
+  }
+
+  // 2) Nominatim (silent fallback)
+  return _geocodeNominatim(rawAddr,recipientName);
+}
+
+// FALLBACK geocoder (formerly the primary). Unchanged Nominatim logic.
+async function _geocodeNominatim(rawAddr,recipientName){
+  const address=sanitizeAddress(rawAddr,recipientName||'');
+  // Quotes/gershayim break Nominatim matching, so strip them from anything sent.
+  const deGiz=s=>String(s).replace(/["'`\u05f3\u05f4]/g,'').replace(/\s+/g,' ').trim();
+  // NOTE: do NOT set a User-Agent header here — browsers forbid it and the
+  // whole fetch silently fails. Nominatim accepts the browser's default UA.
+  const VB='34.72,32.05,35.15,31.68';
+  const cm=findCityInAddr(address);
+  const expectedCity=cm?deGiz(cm.city):'';
+  const numM=address.match(/(?:^|\s)(\d{1,4})(?:\s|$)/);
+  const houseNum=numM?numM[1]:'';
+  const streetName=deGiz((cm?address.slice(0,cm.idx):address).replace(/\d+/g,'').replace(/\s+/g,' ').trim());
+  const qAddress=deGiz(address);
+  const get=async u=>{
+    await new Promise(r=>setTimeout(r,1100)); // Nominatim policy: max 1 req/sec
+    const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),8000);
+    try{const r=await fetch(u,{signal:ctrl.signal});return await r.json();}
+    finally{clearTimeout(t);}
+  };
+  const base='https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&accept-language=he&countrycodes=il&limit=5';
+  const pick=arr=>Array.isArray(arr)?arr.find(r=>cityMatches(_cityOfResult(r),expectedCity)):null;
+  // 1) Structured street+city, hard-bounded to the region.
+  // Try street as-is AND with/without a leading ה (הדקל ↔ דקל) since OSM naming varies.
+  if(expectedCity&&streetName){
+    const variants=[streetName];
+    if(/^\u05d4/.test(streetName))variants.push(streetName.replace(/^\u05d4/,''));
+    else variants.push('\u05d4'+streetName);
+    for(const sv of variants){
+      try{
+        const u=base+'&bounded=1&viewbox='+VB
+          +'&street='+encodeURIComponent((houseNum?houseNum+' ':'')+sv)
+          +'&city='+encodeURIComponent(expectedCity);
+        const hit=pick(await get(u));
+        if(hit){
+          const hasNum=!!(hit.address&&hit.address.house_number);
+          const hasRoad=!!(hit.address&&hit.address.road);
+          if(hasNum||hasRoad)return {lat:+hit.lat,lon:+hit.lon,
+            verified:hasNum,streetOnly:hasNum?false:hasRoad,cityOnly:false,
+            gotCity:_cityOfResult(hit),expectedCity};
+        }
+      }catch{}
+    }
+  }
+  // 2) Free-text within the region, city-validated
+  try{
+    const u=base+'&bounded=1&viewbox='+VB+'&q='+encodeURIComponent(qAddress+' \u05d9\u05e9\u05e8\u05d0\u05dc');
+    const arr=await get(u);
+    const hit=pick(arr)||(expectedCity?null:(arr&&arr[0]));
+    if(hit){
+      const cityOk=cityMatches(_cityOfResult(hit),expectedCity);
+      const hasNum=!!(hit.address&&hit.address.house_number&&cityOk);
+      const hasRoad=!!(hit.address&&hit.address.road&&cityOk);
+      return {lat:+hit.lat,lon:+hit.lon,
+        verified:hasNum,streetOnly:hasNum?false:hasRoad,cityOnly:!hasNum&&!hasRoad,
+        gotCity:_cityOfResult(hit),expectedCity};
+    }
+  }catch{}
+  // 3) City-center fallback — pin at the locality, clearly marked NOT verified
+  if(expectedCity){
+    try{
+      const u=base+'&q='+encodeURIComponent(expectedCity+' \u05d9\u05e9\u05e8\u05d0\u05dc');
+      const arr=await get(u);const hit=pick(arr)||(arr&&arr[0]);
+      if(hit)return {lat:+hit.lat,lon:+hit.lon,verified:false,cityOnly:true,approximate:true,gotCity:_cityOfResult(hit),expectedCity,streetNote:address};
+    }catch{}
+  }
+  throw new Error('\u05dc\u05d0 \u05e0\u05de\u05e6\u05d0');
+}
+
+let wakeLock=null;
+async function requestWakeLock(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen')}catch{}}
+function releaseWakeLock(){try{if(wakeLock){wakeLock.release();wakeLock=null}}catch{}}
+document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='visible'&&wakeLock===null)await requestWakeLock();});
+
+async function run(){
+  await requestWakeLock();
+  const btn=document.getElementById('run-btn');
+  btn.disabled=true;document.getElementById('results').style.display='none';clearStatus();
+  try{
+    let extracted=[];
+    if(mode==='pdf'){
+      if(!pdfText){setStatus('\u26a0 \u05d0\u05e0\u05d0 \u05d4\u05e2\u05dc\u05d4 \u05e7\u05d5\u05d1\u05e5 PDF',true);btn.disabled=false;releaseWakeLock();return;}
+      setStatus('\u23f3 \u05de\u05d7\u05dc\u05e5 \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd...');
+      const fm=pdfText.match(/\u05e0\u05de\u05e2\u05e0\u05d9\u05dd:\s*(\d+)/);
+      window._pdfTotal=fm?parseInt(fm[1]):0;
+      // Extract PDF total packages from footer: look for standalone number after מסירה
+      const _lines2=pdfText.split('\n');
+      let _pdfPkg=0;
+      for(let _i=0;_i<_lines2.length;_i++){
+        const _s=_lines2[_i].trim();
+        // Footer line: standalone number that appears near נמענים
+        if(/^\d+$/.test(_s)&&parseInt(_s)>=50&&parseInt(_s)<=200){
+          const _ctx=_lines2.slice(Math.max(0,_i-5),_i+5).map(l=>l.trim()).join(' ');
+          if(_ctx.includes('\u05e0\u05de\u05e2\u05e0')||_ctx.includes('\u05de\u05e1\u05d9\u05e8')){
+            _pdfPkg=parseInt(_s);break;
+          }
+        }
+      }
+      window._pdfPkgTotal=_pdfPkg;
+      extracted=extractFromPDF(pdfText);
+
+      if(!extracted.length)throw new Error('\u05dc\u05d0 \u05e0\u05de\u05e6\u05d0\u05d5 \u05de\u05e9\u05dc\u05d5\u05d7\u05d9\u05dd');
+
+
+    }else{
+      if(!getKey()){setStatus('\u26a0 \u05d0\u05e0\u05d0 \u05d4\u05d6\u05df \u05de\u05e4\u05ea\u05d7 API',true);btn.disabled=false;releaseWakeLock();return;}
+      if(!imgB64){setStatus('\u26a0 \u05d0\u05e0\u05d0 \u05d1\u05d7\u05e8 \u05ea\u05de\u05d5\u05e0\u05d4',true);btn.disabled=false;releaseWakeLock();return;}
+      setStatus('\u23f3 \u05de\u05e0\u05ea\u05d7 \u05ea\u05de\u05d5\u05e0\u05d4...');
+      extracted=await claudeExtract(imgB64,imgMime);
+      if(!extracted.length)throw new Error('\u05dc\u05d0 \u05d6\u05d5\u05d4\u05d5 \u05de\u05e9\u05dc\u05d5\u05d7\u05d9\u05dd');
+    }
+    stops=extracted;
+    let hits=0;
+    for(let i=0;i<stops.length;i++){
+      const s=stops[i];
+      const sph=s.phone||(s.recipients&&s.recipients[0]&&s.recipients[0].phone);
+      const mem=getFix(sph);
+      if(mem){
+        if(mem.manual){
+          // User-confirmed: sticky — restore address + pin + status, always wins
+          if(mem.name&&!s.name)s.name=mem.name;
+          s.address=mem.address;
+          if(mem.lat!=null&&mem.lon!=null){s.lat=mem.lat;s.lon=mem.lon;s.fromMemory=true;s.manual=true;
+            s.verified=!!mem.verified;s.streetOnly=!!mem.streetOnly;s.cityOnly=!!mem.cityOnly;s.failed=false;hits++;continue;}
+        }else if(mem.lat!=null&&mem.lon!=null&&normKey(mem.address)===normKey(s.address)){
+          // Auto memory + SAME address → reuse the saved pin
+          s.lat=mem.lat;s.lon=mem.lon;s.fromMemory=true;
+          s.verified=!!mem.verified;s.streetOnly=!!mem.streetOnly;s.cityOnly=!!mem.cityOnly;if(mem.cityOnly)s.approximate=true;
+          hits++;continue;
+        }else if(mem.lat!=null&&mem.lon!=null){
+          // Same phone, DIFFERENT address than remembered → could be a real move
+          // or a typo in this PDF. Geocode fresh, but flag for user verification.
+          s.addrChanged=true;s.prevAddress=mem.address;
+        }
+        // else: address changed → fall through and geocode fresh (do NOT use old pin)
+      }
+      setStatus('\u23f3 \u05de\u05de\u05e4\u05d4 '+(i+1)+'/'+stops.length+(hits?' \u00b7 \u26a1'+hits+' \u05d6\u05d9\u05db\u05e8\u05d5\u05df':''));
+      try{const g=await geocodeAddr(s.address,s.name);s.lat=g.lat;s.lon=g.lon;
+        s.verified=!!g.verified;s.streetOnly=!!g.streetOnly;s.cityOnly=!!g.cityOnly;
+        if(g.approximate||g.cityOnly){s.approximate=true;s.streetNote=g.streetNote||'';}
+        // Auto-save full-verified or street-only results (both are usable pins) for next day
+        if((g.verified||g.streetOnly)&&sph)setFix(sph,s.address,g.lat,g.lon,{name:s.name,verified:!!g.verified,streetOnly:!!g.streetOnly,cityOnly:false,manual:false});
+      }catch{s.failed=true;}
+    }
+    clearStatus();renderResults();renderCache();
+  }catch(e){setStatus('\u26a0 '+e.message,true);}
+  finally{btn.disabled=false;releaseWakeLock();}
+}
+
+function xe(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function exportCSV(){
+  // Spoke Route Planner exact field names: Address Line 1/2, City, State, Zip, Country,
+  // Latitude, Longitude, Recipient Name, Phone, Type of stop, Packages, Notes.
+  const v=stops.filter(s=>!s.failed&&s.lat&&s.lon);
+  if(!v.length){setStatus('\u05d0\u05d9\u05df \u05db\u05ea\u05d5\u05d1\u05d5\u05ea \u05e2\u05dd \u05e7\u05d5\u05d0\u05d5\u05e8\u05d3\u05d9\u05e0\u05d8\u05d5\u05ea \u05dc\u05d9\u05d9\u05e6\u05d5\u05d0');return;}
+  const cityKeys=Object.keys(CITY_EN);
+  const parseAddr=(addr)=>{
+    addr=(addr||'').trim();
+    let unit='';
+    const unitM=addr.match(/(\u05db\u05e0\u05d9\u05e1\u05d4|\u05d3\u05d9\u05e8\u05d4|\u05e7\u05d5\u05de\u05d4|\u05d1\u05e0\u05d9\u05d9\u05df)/);
+    if(unitM){unit=addr.slice(unitM.index).replace(/\s+/g,' ').trim();addr=addr.slice(0,unitM.index).replace(/\s+/g,' ').trim();}
+    const m=addr.match(/(\d{1,4})/);
+    if(m){
+      const num=m[1];
+      const before=addr.slice(0,m.index).trim();
+      const after=addr.slice(m.index+num.length).trim();
+      if(after)return {street:(before+' '+num).trim(),city:after,unit};
+      for(const c of cityKeys){if(before.includes(c)){const st=before.replace(c,'').replace(/\s+/g,' ').trim();return {street:(st+' '+num).trim(),city:c,unit};}}
+      return {street:(before+' '+num).trim(),city:'',unit};
+    }
+    for(const c of cityKeys){if(addr.endsWith(c)){const st=addr.slice(0,addr.length-c.length).trim();return {street:st||addr,city:c,unit};}}
+    return {street:addr,city:addr,unit};
+  };
+  // Exact Spoke column headers
+  const hdr=['Address Line 1','Address Line 2','City','State','Zip','Country','Latitude','Longitude','Recipient Name','Phone','Type of stop','Packages','Notes'];
+  const esc=(x)=>'"'+String(x||'').replace(/"/g,'""')+'"';
+  // A "good pin" = trustworthy coordinate (verified house match, manually dragged, or
+  // street-level). City-only/approximate pins are just the city centre and not trusted.
+  const isGoodPin=(s)=>(s.verified||s.manual||s.streetOnly)&&!s.cityOnly&&!s.approximate;
+  const rows=v.map(s=>{
+    const recips=s.recipients&&s.recipients.length?s.recipients:[{name:s.name,phone:s.phone}];
+    const names=recips.map(r=>r.name).filter(Boolean).join(', ');
+    const phones=recips.map(r=>r.phone).filter(Boolean).join(', ');
+    const pkgs=s.packages||1;
+    const {street,city,unit}=parseAddr(s.address);
+    const stopType=s.type==='pickup'?'pickup':'delivery';
+    const good=isGoodPin(s);
+    let note='';
+    if(pkgs>1)note='\ud83d\udce6\u00d7'+pkgs+' ';
+    if(s.bon)note+='\u05d1\u05d5\u05df ';
+    note=note.trim();
+    // Address text is ALWAYS sent so Spoke has a readable stop label.
+    // Coordinates are sent ONLY for trusted pins; for city-only stops they are left
+    // blank so Spoke geocodes the text instead of using the useless city-centre pin.
+    return [
+      esc(street),                    // Address Line 1 (label + fallback geocode)
+      esc(unit),                      // Address Line 2
+      esc(city),                      // City
+      esc(''),                        // State
+      esc(''),                        // Zip (blank - a fake zip would mislead geocoding)
+      esc('Israel'),                  // Country
+      good?s.lat.toFixed(6):esc(''),  // Latitude (only for trusted pins)
+      good?s.lon.toFixed(6):esc(''),  // Longitude
+      esc(names),                     // Recipient Name
+      esc(phones),                    // Phone
+      esc(stopType),                  // Type of stop
+      pkgs,                           // Packages
+      esc(note)                       // Notes
+    ].join(',');
+  });
+  dl('\uFEFF'+hdr.join(',')+'\n'+rows.join('\n'),'spoke-route.csv','text/csv;charset=utf-8');
+  const totPkg=v.reduce((a,b)=>a+(b.packages||1),0);
+  const pinCount=v.filter(isGoodPin).length;
+  const addrCount=v.length-pinCount;
+  setStatus('\u2713 '+v.length+' \u05e2\u05e6\u05d9\u05e8\u05d5\u05ea, '+totPkg+' \u05d7\u05d1\u05d9\u05dc\u05d5\u05ea \u00b7 '+pinCount+' \u05e4\u05d9\u05df \u05e0\u05e2\u05d5\u05dc \u00b7 '+addrCount+' \u05dc\u05e4\u05d9 \u05db\u05ea\u05d5\u05d1\u05ea');
+}
+
+function exportVCF(){
+  const allRecips=[];
+  for(const s of stops){
+    const recips=s.recipients&&s.recipients.length?s.recipients:[{name:s.name,phone:s.phone}];
+    for(const r of recips){if(r.name&&r.name.length>1)allRecips.push({...r,address:s.address});}
+  }
+  const newC=allRecips.filter(r=>isNewContact(r.phone));
+  if(!newC.length){alert(allRecips.length?'\u05db\u05dc \u05d0\u05e0\u05e9\u05d9 \u05d4\u05e7\u05e9\u05e8 \u05db\u05d1\u05e8 \u05e7\u05d9\u05d9\u05de\u05d9\u05dd!':'\u05d0\u05d9\u05df \u05d0\u05e0\u05e9\u05d9 \u05e7\u05e9\u05e8');return;}
+  const vcf=newC.map(r=>'BEGIN:VCARD\nVERSION:3.0\nFN:'+r.name+' - '+r.address+'\nN:'+r.name+';;'+r.address+';;\nTEL;TYPE=CELL:'+r.phone+'\nADR:;;'+r.address+';;;;\nNOTE:'+r.address+'\nEND:VCARD').join('\n');
+  dl(vcf,'contacts_new.vcf','text/vcard');
+  const sk=allRecips.length-newC.length;
+  if(sk>0)setTimeout(()=>alert(newC.length+' \u05d7\u05d3\u05e9\u05d9\u05dd \u05d9\u05d5\u05e6\u05d0\u05d5\n'+sk+' \u05d3\u05d5\u05dc\u05d2\u05d5 (\u05db\u05d1\u05e8 \u05e7\u05d9\u05d9\u05de\u05d9\u05dd)'),300);
+}
+
+function dl(content,filename,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=filename;a.click();}
+
+function renderResults(){
+  const el=document.getElementById('results');
+  const valid=stops.filter(s=>!s.failed).length;
+  const failed=stops.filter(s=>s.failed).length;
+  const cached=stops.filter(s=>s.fromCache).length;
+  const deliveries=stops.filter(s=>s.type==='delivery').length;
+  const pickups=stops.filter(s=>s.type==='pickup').length;
+  const totalPkgs=stops.reduce((a,s)=>a+s.packages,0);
+  const pdfTotal=window._pdfTotal||0;
+  const pdfPkgTotal=window._pdfPkgTotal||0;
+  const pkgDiff=(pdfPkgTotal>0&&totalPkgs<pdfPkgTotal)?pdfPkgTotal-totalPkgs:0;
+  let html='<hr class="divider"><div class="res-head"><div style="display:flex;width:100%;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#ffa000;font-weight:700">'+stops.length+' \u05e2\u05e6\u05d9\u05e8\u05d5\u05ea'+(pdfTotal?' <span style="font-size:10px;color:#555">\u05de\u05ea\u05d5\u05da '+pdfTotal+' \u05d1PDF</span>':'')+'</span><button class="reset-btn" onclick="resetAll()">\u21ba</button></div><span style="font-size:11px;color:#888">\u2728\ufe0f '+deliveries+' \u05e4\u05d9\u05d6\u05d5\u05e8 \u00b7 \ud83d\udd04 '+pickups+' \u05d0\u05d9\u05e1\u05d5\u05e3 \u00b7 '+totalPkgs+(pdfPkgTotal?' /'+pdfPkgTotal:'')+(pkgDiff?' \u00b7 <span style="color:#e74c3c">\u26a0 \u05d7\u05e1\u05e8 '+pkgDiff+'</span>':'')+' \u05d7\u05d1\u05d9\u05dc\u05d5\u05ea \u05e1\u05d4"\u05db'+(cached?' \u00b7 <span style="color:#27ae60">\u26a1'+cached+' \u05d6\u05d9\u05db\u05e8\u05d5\u05df</span>':'')+(failed?' \u00b7 <span style="color:#e67e22">'+failed+' \u05e0\u05db\u05e9\u05dc\u05d5</span>':'')+'</span></div><div class="list">';
+  // Display-only ordering: stops needing attention float to the top so they're
+  // easy to fix first. The underlying `stops` array is NOT reordered, so GPX/CSV
+  // keep the original geographic route order. Each row keeps its real index `oi`.
+  const rank=s=>s.failed?0:s.addrChanged?1:(s.cityOnly||s.approximate)?2:s.streetOnly?3:4;
+  const view=stops.map((s,oi)=>({s,oi})).sort((a,b)=>rank(a.s)-rank(b.s)||a.oi-b.oi);
+  view.forEach(({s,oi})=>{
+    const i=oi; // real index in `stops` — used by all action buttons
+    const cls=s.failed?'failed':s.addrChanged?'changed':(s.cityOnly||s.approximate)?'approx':s.streetOnly?'streetonly':s.type;
+    const numCls=s.type==='delivery'?'d':'p';
+    const geo=s.failed
+      ?'<span style="font-size:9px;color:#e74c3c">\u26a0 \u05dc\u05d0 \u05e0\u05de\u05e6\u05d0</span>'
+      :s.addrChanged
+        ?'<span style="font-size:9px;color:#3498db">\ud83d\udd35 \u05db\u05ea\u05d5\u05d1\u05ea \u05d4\u05e9\u05ea\u05e0\u05ea\u05d4 \u00b7 \u05d0\u05de\u05ea \u05d9\u05d3\u05e0\u05d9\u05ea</span>'
+        :(s.cityOnly||s.approximate)
+          ?'<span style="font-size:9px;color:#e67e22">\u26a0 \u05e2\u05d9\u05e8 \u05d0\u05d5\u05de\u05ea\u05d4 \u00b7 \u05e8\u05d7\u05d5\u05d1 \u05dc\u05d0 \u05d0\u05d5\u05de\u05ea</span>'
+          :s.verified
+            ?'<span style="font-size:9px;color:#27ae60">\u2713 \u05de\u05d0\u05d5\u05de\u05ea \u05de\u05dc\u05d0</span>'
+            :s.streetOnly
+              ?'<span style="font-size:9px;color:#82c91e">\u2713 \u05e8\u05d7\u05d5\u05d1 \u05d0\u05d5\u05de\u05ea \u00b7 \u05de\u05e1\u05e4\u05e8 \u05dc\u05d0 \u05d0\u05d5\u05de\u05ea</span>'
+              :s.fromMemory?'<span style="font-size:9px;color:#27ae60">\u26a1</span>':'<span style="font-size:9px;color:#ffa000">\u2713</span>';
+    const changedNote=s.addrChanged&&s.prevAddress?'<div style="font-size:9px;color:#3498db;margin-top:2px">\u05e7\u05d5\u05d3\u05dd: '+esc(s.prevAddress)+'</div>':'';
+    const typeLabel=s.type==='delivery'?'<span style="color:#ffa000">\ud83d\udce6 \u05e4\u05d9\u05d6\u05d5\u05e8</span>':'<span style="color:#27ae60">\ud83d\udd04 \u05d0\u05d9\u05e1\u05d5\u05e3</span>';
+    const recips=s.recipients&&s.recipients.length?s.recipients:[{name:s.name,phone:s.phone}];
+    const recipHtml=recips.filter(r=>r.name).map(r=>'<br>\ud83d\udc64 '+esc(r.name)+(r.phone?' \u00b7 \ud83d\udcde '+esc(r.phone):'')).join('');
+    html+='<div class="card '+cls+'"><div class="card-top"><div class="num '+numCls+'">'+(i+1)+'</div><div class="card-info" id="inf-'+i+'"><div class="card-addr">'+geo+' '+esc(s.address)+'</div>'+changedNote+'<div class="card-meta">'+typeLabel+' \u00b7 <span style="color:#ffa000;font-weight:700">'+s.packages+' \u05d7\u05d1\u05d9\u05dc\u05d5\u05ea</span>'+(s.bon?' \u00b7 <span style="color:#9b59b6">'+s.bon+'</span>':'')+recipHtml+'</div></div><div class="acts"><button class="act" style="border:1px solid #888;color:#888" onclick="startEdit('+i+')">\u270e</button><button class="act" style="border:1px solid #27ae60;color:#27ae60" onclick="pickOnMap('+i+')">&#128205;</button><button class="act" style="border:1px solid #888;color:#888" onclick="moveUp('+i+')" '+(i===0?'disabled':'')+'>\u2191</button><button class="act" style="border:1px solid #888;color:#888" onclick="moveDown('+i+')" '+(i===stops.length-1?'disabled':'')+'>\u2193</button><button class="act" style="border:1px solid #c0392b;color:#c0392b" onclick="del('+i+')">\u2715</button></div></div></div>';
+  });
+  const hasC=stops.some(s=>(s.recipients&&s.recipients.length)||(s.name&&s.name.length>1));
+  html+='</div><button id="optimizeBtn" class="optimize-btn" onclick="startOptimizeRoute()" '+(stops.length===0?'disabled':'')+'> 🚀 אופטימל מסלול</button><div class="export-row"><button class="gpx-btn" onclick="exportCSV()" '+(valid===0?'disabled':'')+'>&#11015; CSV &#8594; Spoke</button><button class="vcf-btn" onclick="exportVCF()" '+(!hasC?'disabled':'')+'>&#128100; VCF</button></div><p class="hint">CSV: Spoke Route Planner &#8592; Import &nbsp;\u00b7&nbsp; VCF: \u05e4\u05ea\u05d7 \u05dc\u05d9\u05d9\u05d1\u05d5\u05d0 \u05d0\u05e0\u05e9\u05d9 \u05e7\u05e9\u05e8</p>';
+  el.innerHTML=html;el.style.display='';
+}
+
+function pickOnMap(i){
+  const s=stops[i];
+  const lat=s.lat||31.5;const lon=s.lon||34.9;
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:#0d0f14';
+  modal.innerHTML=
+    '<div style="padding:12px 14px;background:#111;color:#ffa000;font-family:monospace;font-size:13px;display:flex;justify-content:space-between;align-items:center">'+
+    '<span>&#128205; '+s.address+'</span>'+
+    '<button onclick="this.closest(\'.map-modal\').remove()" style="background:transparent;border:1px solid #555;color:#888;padding:4px 10px;border-radius:4px;cursor:pointer;font-family:monospace">\u05d1\u05d9\u05d8\u05d5\u05dc</button>'+
+    '</div>'+
+    '<div id="map-frame" style="flex:1"></div>'+
+    '<div style="padding:10px 14px;background:#111;display:flex;gap:8px;align-items:center">'+
+    '<span style="font-size:11px;color:#888;flex:1">\u05d2\u05e8\u05d5\u05e8 \u05d0\u05ea \u05d4\u05e1\u05d9\u05db\u05d4 \u05dc\u05de\u05d9\u05e7\u05d5\u05dd \u05d4\u05de\u05d3\u05d5\u05d9\u05e7</span>'+
+    '<button id="map-save-btn" style="padding:10px 20px;background:#ffa000;color:#0d0f14;border:none;border-radius:4px;cursor:pointer;font-family:monospace;font-weight:700">\u2713 \u05e9\u05de\u05d5\u05e8</button>'+
+    '</div>';
+  modal.className='map-modal';
+  document.body.appendChild(modal);
+
+  // Load Leaflet CSS
+  if(!document.getElementById('leaflet-css')){
+    const lc=document.createElement('link');
+    lc.id='leaflet-css';lc.rel='stylesheet';
+    lc.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(lc);
+  }
+
+  // Load Leaflet JS and init map
+  function initMap(){
+    const mapDiv=document.getElementById('map-frame');
+    const map=L.map(mapDiv).setView([lat,lon],16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'&copy; OpenStreetMap',maxZoom:19
+    }).addTo(map);
+    const marker=L.marker([lat,lon],{draggable:true}).addTo(map);
+    marker.bindPopup(s.address).openPopup();
+    let curLat=lat,curLon=lon;
+    marker.on('dragend',function(e){
+      curLat=e.target.getLatLng().lat;
+      curLon=e.target.getLatLng().lng;
+    });
+    map.on('click',function(e){
+      marker.setLatLng(e.latlng);
+      curLat=e.latlng.lat;curLon=e.latlng.lng;
+    });
+    document.getElementById('map-save-btn').onclick=function(){
+      stops[i].lat=curLat;stops[i].lon=curLon;
+      stops[i].failed=false;stops[i].approximate=false;stops[i].cityOnly=false;stops[i].streetOnly=false;stops[i].verified=true;stops[i].manual=true;stops[i].addrChanged=false;
+      const ph=stops[i].phone||(stops[i].recipients&&stops[i].recipients[0]&&stops[i].recipients[0].phone);
+      setFix(ph,stops[i].address,curLat,curLon,{name:stops[i].name,verified:true,cityOnly:false,manual:true});
+      modal.remove();renderResults();renderCache();
+    };
+  }
+
+  if(typeof L !== 'undefined'){initMap();}
+  else{
+    const ls=document.createElement('script');
+    ls.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    ls.onload=initMap;
+    document.head.appendChild(ls);
+  }
+}
+
+
+function startEdit(i){
+  document.getElementById('inf-'+i).innerHTML='<input style="width:100%;background:#1a1e26;border:1px solid #ffa000;color:#e8e2d4;font-family:inherit;font-size:12px;padding:5px 8px;border-radius:4px;outline:none;margin-bottom:4px" id="ei-'+i+'" value="'+esc(stops[i].address)+'"><div style="display:flex;gap:6px;margin-top:4px"><button class="act" style="width:auto;padding:0 12px;height:26px;border:1px solid #27ae60;color:#27ae60" onclick="saveEdit('+i+')">\u2713 \u05e9\u05de\u05d5\u05e8</button><button class="act" style="width:auto;padding:0 12px;height:26px;border:1px solid #888;color:#888" onclick="renderResults()">\u05d1\u05d9\u05d8\u05d5\u05dc</button></div>';
+}
+async function saveEdit(i){
+  const val=(document.getElementById('ei-'+i)?.value||'').trim();if(!val)return;
+  stops[i].address=val;stops[i].failed=false;stops[i].fromCache=false;stops[i].approximate=false;stops[i].manual=true;stops[i].addrChanged=false;
+  const ph=stops[i].phone||(stops[i].recipients&&stops[i].recipients[0]&&stops[i].recipients[0].phone);
+  setStatus('\u23f3 \u05de\u05de\u05e4\u05d4...');
+  try{const g=await geocodeAddr(val,stops[i].name);stops[i].lat=g.lat;stops[i].lon=g.lon;stops[i].verified=!!g.verified;stops[i].streetOnly=!!g.streetOnly;stops[i].cityOnly=!!g.cityOnly;if(g.approximate||g.cityOnly)stops[i].approximate=true;
+    setFix(ph,val,g.lat,g.lon,{name:stops[i].name,verified:!!g.verified,streetOnly:!!g.streetOnly,cityOnly:!!g.cityOnly,manual:true});}
+  catch{stops[i].failed=true;setFix(ph,val,null,null,{name:stops[i].name,manual:true});}
+  clearStatus();renderResults();renderCache();
+}
+function moveUp(i){if(i>0){[stops[i-1],stops[i]]=[stops[i],stops[i-1]];renderResults();}}
+function moveDown(i){if(i<stops.length-1){[stops[i],stops[i+1]]=[stops[i+1],stops[i]];renderResults();}}
+function del(i){stops.splice(i,1);renderResults();}
+
+
+function clearAllMemory(){
+  if(confirm('\u05dc\u05de\u05d7\u05d5\u05e7 \u05d0\u05ea \u05db\u05dc \u05d4\u05d6\u05d9\u05db\u05e8\u05d5\u05df \u05d5\u05d4\u05ea\u05d9\u05e7\u05d5\u05e0\u05d9\u05dd \u05d4\u05d9\u05d3\u05e0\u05d9\u05d9\u05dd?')){
+    localStorage.removeItem(CK);
+    localStorage.removeItem('addr_fixes_v1');
+    renderCache();
+  }
+}
+function renderCache(){
+  const el=document.getElementById('cache-sec');
+  const fixes=loadFixes();
+  const phones=Object.keys(fixes);
+  const oldCache=Object.keys(loadCache()).length; // legacy rb_v6 leftovers
+  const manual=phones.filter(p=>fixes[p].manual);
+  const auto=phones.filter(p=>!fixes[p].manual);
+  if(!phones.length&&!oldCache){el.style.display='none';return;}
+  let h='<div class="cache-panel">';
+  h+='<div class="cache-title">\u26a1 \u05d6\u05d9\u05db\u05e8\u05d5\u05df: '+auto.length+' \u05de\u05d0\u05d5\u05de\u05ea \u00b7 '+manual.length+' \u05ea\u05d9\u05e7\u05d5\u05df \u05d9\u05d3\u05e0\u05d9'+(oldCache?' <span style="color:#555">('+oldCache+' \u05d9\u05e9\u05df)</span>':'')+'</div>';
+  h+='<div class="cache-list">';
+  // Show manual fixes first (most important), then auto
+  const ordered=manual.concat(auto);
+  for(const p of ordered){
+    const f=fixes[p];
+    const tag=f.manual?'<span style="color:#3498db">\u270e</span> ':f.streetOnly?'<span style="color:#82c91e">\u2713</span> ':'<span style="color:#27ae60">\u2713</span> ';
+    const label=esc(f.address||p)+(f.name?' \u00b7 '+esc(f.name):'');
+    h+='<div class="cache-item"><span>'+tag+label+'</span><button class="cache-del" onclick="delFix(\''+esc(p).replace(/'/g,"\\'")+'\');renderCache()">\u2715</button></div>';
+  }
+  h+='</div>';
+  h+='<button onclick="clearAllMemory()" style="margin-top:8px;width:100%;padding:6px;background:transparent;border:1px solid #c0392b44;color:#c0392b88;border-radius:4px;cursor:pointer;font-family:inherit;font-size:11px">\ud83d\uddd1 \u05e0\u05e7\u05d4 \u05d4\u05db\u05dc</button>';
+  h+='</div>';
+  el.innerHTML=h;
+  el.style.display='';
+}
+function setStatus(msg,err=false){const el=document.getElementById('status');el.className='status'+(err?' err':'');el.innerHTML=msg;el.style.display='';}
+function clearStatus(){document.getElementById('status').style.display='none';}
+function clearResults(){stops=[];document.getElementById('results').style.display='none';clearStatus();}
+function resetAll(){clearResults();if(mode==='pdf')clearPDF();else changeImg();}
+
+/* === ROUTE OPTIMIZATION (Nearest Neighbor TSP + Spoke UI) === */
+let currentRoute=[];let currentRouteIdx=0;let routeRunning=false;let currentGPS={lat:31.5,lon:34.9};let homeStop=-1;
+
+function openSettings(){
+  document.getElementById('settingsPanel').style.display='flex';
+  const saved=localStorage.getItem('homeAddress')||'';
+  const savedLat=localStorage.getItem('homeLat')||'';
+  const savedLon=localStorage.getItem('homeLon')||'';
+  document.getElementById('homeAddress').value=saved;
+  document.getElementById('homeAddressStatus').textContent=savedLat&&savedLon?'✓ מוקם':'⚠ לא מוקם עדיין';
+}
+
+function closeSettings(){
+  document.getElementById('settingsPanel').style.display='none';
+}
+
+function saveHomeAddress(){
+  const addr=document.getElementById('homeAddress').value.trim();
+  if(!addr){setStatus('הזן כתובת בית',true);return;}
+  setStatus('🔄 מאתר את הכתובת...');
+  // Geocode the home address
+  const url=`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addr)}&key=${GEO_KEY}&region=il&language=he`;
+  fetch(url).then(r=>r.json()).then(data=>{
+    if(data.results&&data.results[0]){
+      const loc=data.results[0].geometry.location;
+      localStorage.setItem('homeAddress',addr);
+      localStorage.setItem('homeLat',loc.lat);
+      localStorage.setItem('homeLon',loc.lon);
+      document.getElementById('homeAddressStatus').textContent='✓ מוקם ל-'+loc.lat.toFixed(4)+', '+loc.lon.toFixed(4);
+      setStatus('✓ כתובת הבית נשמרה ומוקמה!');
+      closeSettings();
+    }else{
+      setStatus('⚠ לא מצאתי את הכתובת',true);
+    }
+  }).catch(e=>{setStatus('⚠ שגיאה בGeocoding',true);});
+}
+
+function getHomeAddress(){
+  return localStorage.getItem('homeAddress')||'בית';
+}
+
+function getHomeCoords(){
+  const lat=parseFloat(localStorage.getItem('homeLat'))||31.5;
+  const lon=parseFloat(localStorage.getItem('homeLon'))||34.9;
+  return {lat,lon};
+}
+
+function openHomeMapPicker(){
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:#0d0f14';
+  const homeCoords=getHomeCoords();
+  modal.innerHTML='<div style="flex:1;position:relative"><div id="homePickerMap" style="width:100%;height:100%;background:#1a1f28"></div></div><div style="padding:16px;background:#0d0f14;border-top:1px solid #ffa000;display:flex;gap:8px"><button onclick="this.parentElement.parentElement.remove()" style="flex:1;padding:12px;background:#555;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700">בטל</button><button id="confirmMapHome" onclick="confirmHomeLocation();this.parentElement.parentElement.remove()" style="flex:1;padding:12px;background:#27ae60;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700">✓ אישור</button></div>';
+  document.body.appendChild(modal);
+  
+  // Load Leaflet if not already loaded
+  if(!window.L){
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+    const script=document.createElement('script');
+    script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload=()=>initHomeMapPicker(homeCoords);
+    document.head.appendChild(script);
+  }else{
+    initHomeMapPicker(homeCoords);
+  }
+}
+
+function initHomeMapPicker(homeCoords){
+  const mapEl=document.getElementById('homePickerMap');
+  if(!mapEl)return;
+  const map=L.map(mapEl).setView([homeCoords.lat,homeCoords.lon],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'© OpenStreetMap'
+  }).addTo(map);
+  
+  let marker=L.marker([homeCoords.lat,homeCoords.lon],{draggable:true}).addTo(map);
+  marker.on('dragend',()=>{
+    const pos=marker.getLatLng();
+    window.selectedHomeCoords={lat:pos.lat,lon:pos.lng};
+  });
+  
+  map.on('click',(e)=>{
+    marker.setLatLng(e.latlng);
+    window.selectedHomeCoords={lat:e.latlng.lat,lon:e.latlng.lng};
+  });
+  
+  window.selectedHomeCoords={lat:homeCoords.lat,lon:homeCoords.lon};
+}
+
+function confirmHomeLocation(){
+  if(!window.selectedHomeCoords){setStatus('בחר מיקום על המפה',true);return;}
+  const addr=document.getElementById('homeAddress').value.trim()||'בית';
+  localStorage.setItem('homeAddress',addr);
+  localStorage.setItem('homeLat',window.selectedHomeCoords.lat);
+  localStorage.setItem('homeLon',window.selectedHomeCoords.lon);
+  document.getElementById('homeAddressStatus').textContent='✓ מוקם ל-'+window.selectedHomeCoords.lat.toFixed(4)+', '+window.selectedHomeCoords.lon.toFixed(4);
+  setStatus('✓ כתובת הבית סומנה ונשמרה!');
+}
+
+function startOptimizeRoute(){
+  if(stops.length===0){setStatus('אין כתובות לאופטימל',true);return;}
+  const homeCoords=getHomeCoords();
+  if(!homeCoords.lat||!homeCoords.lon){setStatus('⚠ הגדר כתובת בית קודם (⚙️)',true);return;}
+  if(routeRunning){setStatus('כבר בתהליך...',true);return;}
+  routeRunning=true;
+  setStatus('🔄 קורא GPS...');
+  homeStop=-1; // home is not in stops array
+  // Get current GPS
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      currentGPS={lat:pos.coords.latitude,lon:pos.coords.longitude};
+      setStatus('🔄 מחשב מסלול אופטימלי...');
+      optimizeRouteNearest();
+    },err=>{
+      setStatus('⚠ לא קיבלתי GPS, משתמש במיקום ברירת מחדל');
+      optimizeRouteNearest();
+    });
+  }else{
+    setStatus('⚠ GPS לא זמין');
+    optimizeRouteNearest();
+  }
+}
+
+function optimizeRouteNearest(){
+  // Build route: start from GPS → visit all stops → end at home
+  const homeCoords=getHomeCoords();
+  const n=stops.length;
+  const dist=(lat1,lon1,lat2,lon2)=>Math.hypot(lat2-lat1,(lon2-lon1)*1.3);
+  const route=[];
+  let curr={lat:currentGPS.lat,lon:currentGPS.lon};
+  
+  // Greedy nearest neighbor for all stops
+  const toVisit=Array.from({length:n},((_,i)=>i));
+  while(toVisit.length>0){
+    let nearest=-1,minDist=Infinity;
+    for(let idx=0;idx<toVisit.length;idx++){
+      const i=toVisit[idx];
+      const d=dist(curr.lat,curr.lon,stops[i].lat,stops[i].lon);
+      if(d<minDist){minDist=d;nearest=idx;}
+    }
+    if(nearest>=0){
+      const stopIdx=toVisit[nearest];
+      route.push(stopIdx);
+      curr={lat:stops[stopIdx].lat,lon:stops[stopIdx].lon};
+      toVisit.splice(nearest,1);
+    }else break;
+  }
+  
+  // === 2-OPT IMPROVEMENT ===
+  let improved=true;
+  while(improved){
+    improved=false;
+    for(let i=0;i<route.length-1;i++){
+      for(let k=i+2;k<route.length;k++){
+        const a=route[i],b=route[i+1],c=route[k],d=route[k+1]||null;
+        const d1=dist(stops[a].lat,stops[a].lon,stops[b].lat,stops[b].lon)+
+                 dist(stops[c].lat,stops[c].lon,(d!==null?stops[d].lat:homeCoords.lat),(d!==null?stops[d].lon:homeCoords.lon));
+        const d2=dist(stops[a].lat,stops[a].lon,stops[c].lat,stops[c].lon)+
+                 dist(stops[b].lat,stops[b].lon,(d!==null?stops[d].lat:homeCoords.lat),(d!==null?stops[d].lon:homeCoords.lon));
+        if(d2<d1){
+          const rev=route.slice(i+1,k+1).reverse();
+          route.splice(i+1,k-i,...rev);
+          improved=true;
+          break;
+        }
+      }
+      if(improved)break;
+    }
+  }
+  
+  currentRoute=route;currentRouteIdx=0;
+  rerenderWithOptimalOrder();
+  showRoutePanel();
+  const homeAddr=getHomeAddress();
+  setStatus('✓ מסלול אופטימלי מוכן! (מהנקודה הנוכחית → '+homeAddr+')');
+  routeRunning=false;
+}
+
+function rerenderWithOptimalOrder(){
+  // Re-render the results list with the new optimized order
+  const orderedStops=currentRoute.map(i=>stops[i]);
+  const el=document.getElementById('results');
+  let html='<div class="list">';
+  orderedStops.forEach((s,idx)=>{
+    const i=stops.indexOf(s);
+    const cls=s.failed?'failed':s.approx?'approx':s.changed?'changed':s.streetOnly?'streetonly':s.type==='pickup'?'pickup':'delivery';
+    const numCls=s.type==='delivery'?'d':s.type==='pickup'?'p':s.failed?'f':'';
+    const geo=s.approx?'⚠':s.changed?'↻':s.streetOnly?'⚠':'✓';
+    const changedNote=s.addrChanged&&s.prevAddress?'<div style="font-size:9px;color:#3498db;margin-top:2px">קודם: '+esc(s.prevAddress)+'</div>':'';
+    const typeLabel=s.type==='delivery'?'<span style="color:#ffa000">📦 פיזור</span>':'<span style="color:#27ae60">📦 איסוף</span>';
+    const recips=s.recipients&&s.recipients.length?s.recipients:[{name:s.name,phone:s.phone}];
+    const recipHtml=recips.filter(r=>r.name).map(r=>'<br>👤 '+esc(r.name)+(r.phone?' · 📞 '+esc(r.phone):'')).join('');
+    html+='<div class="card '+cls+'"><div class="card-top"><div class="num '+numCls+'">'+(idx+1)+'</div><div class="card-info" id="inf-'+i+'"><div class="card-addr">'+geo+' '+esc(s.address)+'</div>'+changedNote+'<div class="card-meta">'+typeLabel+' · <span style="color:#ffa000;font-weight:700">'+s.packages+' חבילות</span>'+(s.bon?' · <span style="color:#9b59b6">'+s.bon+'</span>':'')+recipHtml+'</div></div><div class="acts"><button class="act" style="border:1px solid #3498db;color:#3498db" onclick="openWazeForStop('+i+')">📍</button><button class="act" style="border:1px solid #888;color:#888" onclick="updateLocationForStop('+i+')" title="עדכן מיקום">🔄</button><button class="act" style="border:1px solid #27ae60;color:#27ae60" onclick="markDeliveredStop('+i+')">\u2713</button><button class="act" style="border:1px solid #c0392b;color:#c0392b" onclick="cancelStop('+i+')">\u2715</button></div></div></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function showRoutePanel(){
+  if(currentRoute.length===0)return;
+  const floatEl=document.getElementById('routeFloat');
+  floatEl.classList.add('show');
+  updateRouteDisplay();
+}
+
+function updateRouteDisplay(){
+  if(currentRouteIdx>=currentRoute.length){
+    // Display home as final destination
+    const homeAddr=getHomeAddress();
+    const homeCoords=getHomeCoords();
+    document.getElementById('routeProgress').textContent=(currentRoute.length+1)+'/'+(currentRoute.length+1)+' עצירות (🏠 הבית!)';
+    document.getElementById('routeText').textContent=homeAddr;
+    document.getElementById('routeName').textContent='בית';
+    document.getElementById('routePhone').textContent='-';
+    document.getElementById('routePackages').textContent='0';
+    document.getElementById('routeNotes').textContent='🏠 נקודת סיום';
+    const typeDiv=document.getElementById('routeTypeDiv');
+    typeDiv.innerHTML='<span style="color:#27ae60;font-weight:700;font-size:13px">🏠 חזרה הביתה (נקודת סיום)</span>';
+    // Show navigation button
+    const floatEl=document.getElementById('routeFloat');
+    floatEl.classList.add('show');
+    return;
+  }
+  const stopIdx=currentRoute[currentRouteIdx];
+  const s=stops[stopIdx];
+  document.getElementById('routeProgress').textContent=(currentRouteIdx+1)+'/'+(currentRoute.length+1)+' עצירות';
+  document.getElementById('routeText').textContent=s.address;
+  const recips=s.recipients&&s.recipients.length?s.recipients:[{name:s.name,phone:s.phone}];
+  const mainRecip=recips[0];
+  document.getElementById('routeName').textContent=mainRecip?.name||'-';
+  document.getElementById('routePhone').textContent=mainRecip?.phone||'-';
+  document.getElementById('routePackages').textContent=s.packages||'0';
+  document.getElementById('routeNotes').textContent=(s.bon||'-');
+  const typeDiv=document.getElementById('routeTypeDiv');
+  typeDiv.innerHTML='<span class="route-type '+(s.type==='delivery'?'delivery':'pickup')+'">'+(s.type==='delivery'?'📦 פיזור':'📦 איסוף')+'</span>';
+}
+
+function openWaze(){
+  if(currentRouteIdx>=currentRoute.length)return;
+  const stopIdx=currentRoute[currentRouteIdx];
+  const s=stops[stopIdx];
+  const url=`https://www.waze.com/ul?navigate=yes&ll=${s.lat},${s.lon}`;
+  window.open(url,'_blank');
+}
+
+function updateCurrentLocation(){
+  if(currentRouteIdx>=currentRoute.length)return;
+  const stopIdx=currentRoute[currentRouteIdx];
+  if(!navigator.geolocation){setStatus('⚠ GPS לא זמין',true);return;}
+  setStatus('🔄 קורא GPS...');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const oldLat=stops[stopIdx].lat,oldLon=stops[stopIdx].lon;
+    stops[stopIdx].lat=pos.coords.latitude;
+    stops[stopIdx].lon=pos.coords.longitude;
+    // Save updated location to cache
+    const s=stops[stopIdx];
+    if(s.address){
+      const normAddr=String(s.address).trim().replace(/\s+/g,' ').toLowerCase();
+      const c=loadCache();
+      c[normAddr]={lat:s.lat,lon:s.lon,verified:s.verified,cityOnly:s.cityOnly};
+      saveCache(c);
+    }
+    setStatus('✓ מיקום עודכן! (היה: '+oldLat.toFixed(4)+','+oldLon.toFixed(4)+' → עכשיו: '+pos.coords.latitude.toFixed(4)+','+pos.coords.longitude.toFixed(4)+')');
+    updateRouteDisplay();
+  },err=>{setStatus('⚠ לא קיבלתי GPS',true);});
+}
+
+function openWazeForStop(i){
+  const s=stops[i];
+  const url=`https://www.waze.com/ul?navigate=yes&ll=${s.lat},${s.lon}`;
+  window.open(url,'_blank');
+}
+
+function markDelivered(){
+  if(currentRouteIdx<currentRoute.length){
+    const stopIdx=currentRoute[currentRouteIdx];
+    stops[stopIdx].delivered=true;
+  }
+  currentRouteIdx++;
+  if(currentRouteIdx>currentRoute.length){
+    closeRoutePanel();setStatus('✓ סיימת את המסלול! חזרת הביתה!');return;
+  }
+  updateRouteDisplay();
+}
+
+function markDeliveredStop(i){
+  stops[i].delivered=true;
+  if(i===currentRoute[currentRouteIdx])markDelivered();
+  else renderResults();
+}
+
+function updateLocationForStop(i){
+  if(!navigator.geolocation){setStatus('⚠ GPS לא זמין',true);return;}
+  setStatus('🔄 קורא GPS...');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const oldLat=stops[i].lat,oldLon=stops[i].lon;
+    stops[i].lat=pos.coords.latitude;
+    stops[i].lon=pos.coords.longitude;
+    // Save to cache
+    const s=stops[i];
+    if(s.address){
+      const normAddr=String(s.address).trim().replace(/\s+/g,' ').toLowerCase();
+      const c=loadCache();
+      c[normAddr]={lat:s.lat,lon:s.lon,verified:s.verified,cityOnly:s.cityOnly};
+      saveCache(c);
+    }
+    setStatus('✓ מיקום עודכן!');
+    renderResults();
+  },err=>{setStatus('⚠ לא קיבלתי GPS',true);});
+}
+
+function markSkipped(){currentRouteIdx++;updateRouteDisplay();}
+function cancelStop(i){
+  currentRoute=currentRoute.filter(idx=>idx!==i);
+  if(currentRouteIdx>=currentRoute.length)currentRouteIdx=Math.max(0,currentRoute.length-1);
+  updateRouteDisplay();
+  renderResults();
+}
+
+function closeRoutePanel(){
+  document.getElementById('routeFloat').classList.remove('show');
+  currentRoute=[];currentRouteIdx=0;routeRunning=false;
+}
+
+
+function openWhatsApp(){
+  const phone = document.querySelector('[data-phone]')?.dataset.phone;
+  if(!phone) { alert('אין מספר טלפון'); return; }
+  const msg = encodeURIComponent('שלום, אני בדרך אליך עם המשלוח 🚀');
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+</script>
+<script>
+// PWA: register service worker so the tool installs to the home screen and opens offline.
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').catch(function(err){console.warn('SW registration failed',err);});
+  });
+}
+
+function openWhatsApp(){
+  const phone = document.querySelector('[data-phone]')?.dataset.phone;
+  if(!phone) { alert('אין מספר טלפון'); return; }
+  const msg = encodeURIComponent('שלום, אני בדרך אליך עם המשלוח 🚀');
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+</script>
+
+let floatX = localStorage.getItem('floatX') || 20;
+let floatY = localStorage.getItem('floatY') || 20;
+let floatMinimized = localStorage.getItem('floatMinimized') === 'true';
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
+function startDrag(e){
+  isDragging = true;
+  const rect = document.getElementById('route-float_panel').getBoundingClientRect();
+  dragOffsetX = e.clientX - rect.left;
+  dragOffsetY = e.clientY - rect.top;
+}
+
+document.addEventListener('mousemove', (e) => {
+  if(!isDragging) return;
+  const float = document.getElementById('route-float_panel');
+  float.style.right = 'auto';
+  float.style.bottom = 'auto';
+  float.style.left = Math.max(0, e.clientX - dragOffsetX) + 'px';
+  float.style.top = Math.max(0, e.clientY - dragOffsetY) + 'px';
+  floatX = float.style.left;
+  floatY = float.style.top;
+  localStorage.setItem('floatX', floatX);
+  localStorage.setItem('floatY', floatY);
+});
+
+document.addEventListener('mouseup', () => { isDragging = false; });
+
+function minimizeFloat(){
+  const float = document.getElementById('route-float_panel');
+  floatMinimized = !floatMinimized;
+  float.classList.toggle('minimized');
+  const content = document.getElementById('float-content');
+  content.style.display = floatMinimized ? 'none' : 'block';
+  localStorage.setItem('floatMinimized', floatMinimized);
+}
+
+function closeFloat(){
+  document.getElementById('route-float_panel').style.display = 'none';
+  document.getElementById('restore-float').style.display = 'block';
+}
+
+function showFloatingPanel(){
+  document.getElementById('route-float_panel').style.display = 'flex';
+  document.getElementById('restore-float').style.display = 'none';
+}
+
+// Restore position on load
+window.addEventListener('load', () => {
+  const float = document.getElementById('route-float_panel');
+  if(floatX !== '20') float.style.left = floatX + 'px';
+  if(floatY !== '20') float.style.top = floatY + 'px';
+  if(floatMinimized) minimizeFloat();
+});
+
+</body>
+</html>
